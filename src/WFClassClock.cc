@@ -3,7 +3,7 @@
 //**********Constructors******************************************************************
 
 WFClassClock::WFClassClock(float tUnit):
-    WFClass(1., tUnit), clkPeriod_(-1), tmplFitPeriod_(-1)
+    WFClass(1., tUnit), extPeriod_(-1), clkPeriod_(-1), tmplFitPeriod_(-1)
 {}
 
 //**********Getters***********************************************************************
@@ -144,7 +144,7 @@ WFFitResults WFClassClock::TemplateFit(float ampl_threshold, float offset, int l
         int N=0;
         double S=0, S2=0, T=0, ST=0; 
         vector<double> clkZeros;
-
+        double period = 0;
         //---cycles loop
         for(int iSample=sWinMin_; iSample<sWinMax_; ++iSample)
         {
@@ -155,6 +155,7 @@ WFFitResults WFClassClock::TemplateFit(float ampl_threshold, float offset, int l
                 //---set template fit window around zero crossing, [min, max)
                 fWinMin_ = iSample - lW;
                 fWinMax_ = iSample + hW;
+                
                 //---setup minimization
                 std::default_random_engine generator;
                 std::uniform_real_distribution<float> rnd_t0(times_.at(iSample), times_.at(iSample+1));
@@ -185,17 +186,15 @@ WFFitResults WFClassClock::TemplateFit(float ampl_threshold, float offset, int l
                 S += N;
                 S2 += N*N;
                 T += clkZeros.back();
-                ST += N*clkZeros.back();
-                
-                ++iSample;
-                
+                ST += N*clkZeros.back();                
+                ++iSample;                
                 delete minimizer;        
             }
-        }
-
+        }        
         //---compute clock period, phase and phase error
         tmplFitPeriod_ = (ST-S*T/N)/(S2-S*S/N);
-        tmplFitTime_ = (T-S*tmplFitPeriod_)/N;
+        period = (extPeriod_ == -1 ? tmplFitPeriod_ : extPeriod_) ;  
+        tmplFitTime_ = (T-S*period)/N;
         TH1F h_phase_err("h_phase_err", "", 100, -0.05, 0.05);
         for(unsigned int i=1; i<N; ++i)
         {
@@ -205,7 +204,6 @@ WFFitResults WFClassClock::TemplateFit(float ampl_threshold, float offset, int l
         tmplFitTimeErr_ = h_phase_err.GetRMS();
         //tmplFitTimeErr_ = h_phase_err.Fit("gaus", "QRSO", "goff")->Parameter(2);
     }
-
     return WFFitResults{tmplFitAmp_, tmplFitTime_, tmplFitTimeErr_, TemplateChi2()/(hW-lW), 0};
 }
 

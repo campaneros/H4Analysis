@@ -72,6 +72,11 @@ bool WFAnalyzer::Begin(map<string, PluginBase*>& plugins, CfgManager& opts, uint
             spikeTemplates_[channel] -> SetDirectory(0);
             templateFile->Close();
         }
+        
+	WFClassClock* isclock = dynamic_cast<WFClassClock*>(WFs_[channel]);
+	if (isclock != NULL && opts.OptExist(channel+".clkPeriod")) 
+            WFs_[channel]->SetPeriod(opts.GetOpt<float>(channel+".clkPeriod"));
+        
         //---keep track of all the possible time reco method requested
         for(auto type_name : timeRecoTypes_)
         {
@@ -226,6 +231,7 @@ bool WFAnalyzer::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins, 
                 opts.GetOpt<float>(channel+".templateFit.fitWin", 0),
                 opts.GetOpt<int>(channel+".templateFit.fitWin", 1),
                 opts.GetOpt<int>(channel+".templateFit.fitWin", 2));
+
             digiTree_.fit_ampl[outCh] = fitResults.ampl;
             digiTree_.fit_time[outCh] = fitResults.time;
             digiTree_.fit_terr[outCh] = fitResults.error;            
