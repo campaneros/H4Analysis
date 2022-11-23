@@ -152,6 +152,7 @@ public:
     void                           SetBaselineWindow(int min, int max);
     void                           SetBaselineIntegralWindow(int min, int max);
     void                           SetTemplate(TH1* templateWF=NULL);
+    virtual inline void            SetPeriod(float period) { return; };
 
     //---utils---
     virtual void                           Reset();
