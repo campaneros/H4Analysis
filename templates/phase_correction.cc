@@ -27,14 +27,15 @@ int main (int argc, char *argv[])
     bool save_friend = true; 
 
 
-    if (path == "") path = "/eos/home-c/camendol/ECALTB/ECAL_TB_Oct2021/ntuples/ECAL_H4_Oct2021_templates/ntuples_templates_v6/";
+	 if (path == "") path = "/eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Oct2021/ntuples_c2escan_v3/";
+///eos/home-c/camendol/ECALTB/ECAL_TB_Oct2021/ntuples/ECAL_H4_Oct2021_templates/ntuples_templates_v6/
     cout << Form ( "Ntuples path: %s/%i", path.Data(), run) <<endl; 
 
     gSystem->Load("lib/libH4Analysis.so");
     gStyle->SetOptStat(0);
 
     if (!save_friend) ROOT::EnableImplicitMT();
-    ROOT::RDataFrame df("h4", Form("%s/%i/*.root", path.Data(), run));
+    ROOT::RDataFrame df("h4", Form("%s/%i/*.root", path.Data(), run)); //("tree_name", "path")
 
 
 
@@ -42,7 +43,7 @@ int main (int argc, char *argv[])
     cout << Form("Selection: %s", selection) <<endl; 
 
     ROOT::RDF::RNode fn = df;
-    
+   //add all the needed colums to the DataFrame 
     fn = df.Define("dtime", "digi_t.time_max[C3_T]-fit_time[MCP1]+fit_time[CLK]-int((digi_t.time_max[C3_T]-fit_time[MCP1]+fit_time[CLK])/6.238)*6.238")
         .Define("phase", "digi_t.time_max[C3_T]-int(digi_t.time_max[C3_T]/6.238)*6.238")
         .Define("amp", "digi_t.amp_max[C3_T]")
