@@ -2,7 +2,7 @@ import ROOT
 import argparse
 import glob
 
-ROOT.gSystem.Load("/eos/home-c/camendol/H4Analysis/lib/libH4Analysis.so")
+ROOT.gSystem.Load("lib/libH4Analysis.so")
 
 parser = argparse.ArgumentParser (description = 'make corrected template')
 parser.add_argument('-r', '--run' , help='run to be processed', type = int, default = 15153)
@@ -58,6 +58,7 @@ for e in range(nentries):
             tmpl.Fill(WF_time[i], WF_val[i]/digi_t.amp_max[h4.C2_T]) 
 
 histos = ROOT.TFile.Open(f'{path}/{run}/templ/corrected_template_{prefix}.root', 'RECREATE')
+print(f'Saved file : {path}/{run}/templ/corrected_template_{prefix}.root')
 tmpl.Write()
 tmpl_corr.Write()
 histos.Close()

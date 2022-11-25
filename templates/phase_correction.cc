@@ -24,16 +24,18 @@ int main (int argc, char *argv[])
     TString path = argv[4]; 
     bool debug = false; 
     bool save_friend = true; 
-    bool iter = true; 
+    bool iter = false; 
 
-<<<<<<< HEAD
 
-	 if (path == "") path = "/eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Oct2021/ntuples_c2escan_v3/";
+	 if (path == "") path = "/eos/user/c/cbasile/ECAL_TB2021/ntuples_templates";
+///eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Oct2021/ntuples_templates_v8";
 ///eos/home-c/camendol/ECALTB/ECAL_TB_Oct2021/ntuples/ECAL_H4_Oct2021_templates/ntuples_templates_v6/
     cout << Form ( "Ntuples path: %s/%i", path.Data(), run) <<endl; 
 
     gSystem->Load("lib/libH4Analysis.so");
     gStyle->SetOptStat(0);
+	
+	 cout << "LIBs set-up" << endl;
 
     if (!save_friend) ROOT::EnableImplicitMT();
     ROOT::RDataFrame df("h4", Form("%s/%i/*.root", path.Data(), run)); //("tree_name", "path")
@@ -45,6 +47,7 @@ int main (int argc, char *argv[])
         selection = Form("trg == PHYS && digi_t.amp_max[C2_T]>%i && fit_ampl[MCP1]>120 && digi_t.amp_max[C2_T]<%i", minamp, maxamp);
 
     cout << Form("Selection: %s", selection) <<endl; 
+	 cout << "Selection: " << selection << endl;
 
     ROOT::RDF::RNode fn = df;
     
@@ -143,8 +146,8 @@ int main (int argc, char *argv[])
             auto histo = fn.Histo1D({name.Data(), Form("; %s ; %s ", var.Data()), bins, low, high}, var);
             histo->Draw("hist");
             c->Draw();
-            c->SaveAs(Form("/eos/home-c/camendol/www/ECALTB2021/templates_v9/%i/skimmed/%s.pdf", run, name.Data()));
-            c->SaveAs(Form("/eos/home-c/camendol/www/ECALTB2021/templates_v9/%i/skimmed/%s.png", run, name.Data()));
+            c->SaveAs(Form("/eos/user/c/cbasile/www/ECAL_TB2021/my_templates/%i/skimmed/%s.pdf", run, name.Data()));
+            c->SaveAs(Form("/eos/user/c/cbasile/www/ECAL_TB2021/my_templates/%i/skimmed/%s.png", run, name.Data()));
         }
 
         
@@ -153,8 +156,8 @@ int main (int argc, char *argv[])
             auto histo = fn.Histo2D({name.Data(), Form("; %s ; %s ", xvar.Data(), yvar.Data()),  xbins, xlow, xhigh, ybins, ylow, yhigh}, xvar, yvar);
             histo->Draw("colz");
             c->Draw();
-            c->SaveAs(Form("/eos/home-c/camendol/www/ECALTB2021/templates_v9/%i/skimmed/%s.pdf", run, name.Data()));
-            c->SaveAs(Form("/eos/home-c/camendol/www/ECALTB2021/templates_v9/%i/skimmed/%s.png", run, name.Data()));
+            c->SaveAs(Form("/eos/user/c/cbasile/www/ECAL_TB2021/my_templates/%i/skimmed/%s.pdf", run, name.Data()));
+            c->SaveAs(Form("/eos/user/c/cbasile/www/ECAL_TB2021/my_templates/%i/skimmed/%s.png", run, name.Data()));
         }
     }
     
