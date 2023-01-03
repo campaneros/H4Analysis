@@ -1,5 +1,6 @@
 #include "DFTTemplate.h"
 #include "TRandom.h"
+#include "TCanvas.h"
 #include <complex>
 
 //----------Utils-------------------------------------------------------------------------
@@ -27,6 +28,10 @@ bool DFTTemplate::Begin(map<string, PluginBase*>& plugins, CfgManager& opts, uin
         oversamplingMap_[channel] = make_pair(fOversampling,
                                               opts.GetOpt<float>(channel+".tUnit")*orig_n_sample);
         
+		  cout << Form("n_samples= %.0f , fOversampling = %.1f , Nsamples original= %.0f", 
+								oversamplingMap_[channel].first*oversamplingMap_[channel].second,
+								oversamplingMap_[channel].first,
+								orig_n_sample) << endl; 
         //---Register oversampled WF
         auto oversampledName = channel+opts.GetOpt<string>(instanceName_+".outWFSuffix");
         WFs_[channel] = new WFClass(1, tOversampling);
@@ -45,6 +50,7 @@ bool DFTTemplate::Begin(map<string, PluginBase*>& plugins, CfgManager& opts, uin
 
 bool DFTTemplate::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins, CfgManager& opts)
 {
+	//TCanvas* c = new TCanvas("c", "", 1024, 1024);
     for(auto& channel : channelsNames_)
     {
         //---get FFT from source instance data and reset old WF
@@ -59,22 +65,39 @@ bool DFTTemplate::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins,
         Im.reserve(n_samples); 
         Re.assign(fft->GetRe()->data(), fft->GetRe()->data()+fft->GetRe()->size());
         Im.assign(fft->GetIm()->data(), fft->GetIm()->data()+fft->GetIm()->size());
-        //auto orig_n_sample = Im.size();
-        //---not so general FIXME
-        TH1D ampl_spectrum("ampl_spectrum", "",
-                           Re.size()/4.,
-                           Re.size()/4./oversamplingMap_[channel].second,
-                           Re.size()/2./oversamplingMap_[channel].second);
-        TF1 ampl_extrapolation("fextr", "expo", Re.size()/4./oversamplingMap_[channel].second, Re.size()/2./oversamplingMap_[channel].first);
-        for(unsigned int i=1; i<=ampl_spectrum.GetNbinsX(); ++i)
-            ampl_spectrum.SetBinContent(i, sqrt(pow(Re.at(Re.size()/4+i-1), 2)+pow(Im.at(Im.size()/4+i-1), 2)));
-        ampl_spectrum.Fit(&ampl_extrapolation, "QRSO");
-        while(Re.size() < n_samples)
-        {
-            auto mag = ampl_extrapolation.Eval(Re.size()/oversamplingMap_[channel].second);
-            auto phase = gRandom->Uniform(-TMath::Pi(), TMath::Pi());
-            // Re.insert(Re.begin()+(Re.size()/2), 2,
-            //           ampl_extrapolation.Eval(Re.size()/oversamplingMap_[channel].second));
+		  //auto orig_n_sample = Im.size();
+
+		  //---not so general FIXME
+		//  cout << Form ("TH1D: #bins = %.0f xlow = %.2f xhigh = %.2f",
+		//		  Re.size()/4.,
+		//		  Re.size()/4./oversamplingMap_[channel].second,
+		//		  Re.size()/2./oversamplingMap_[channel].second) << endl;
+		  TH1D ampl_spectrum("ampl_spectrum","", 
+				  Re.size()/4.,
+				  Re.size()/4./oversamplingMap_[channel].second,
+				  Re.size()/2./oversamplingMap_[channel].second);
+		  TF1 ampl_extrapolation("fextr", "expo", Re.size()/4./oversamplingMap_[channel].second, Re.size()/2./oversamplingMap_[channel].second);
+		  //cout << Form("FITrange : xlow = %.2f  xhigh = %.2f ", Re.size()/4./oversamplingMap_[channel].second, Re.size()/2./oversamplingMap_[channel].second) << endl;
+		  for(unsigned int i=1; i<=ampl_spectrum.GetNbinsX(); ++i)
+			  ampl_spectrum.SetBinContent(i, sqrt(pow(Re.at(Re.size()/4+i-1), 2)+pow(Im.at(Im.size()/4+i-1), 2)));
+		  ampl_spectrum.Fit(&ampl_extrapolation, "QRSO");
+		  //ampl_spectrum.Draw();
+		  //c->SaveAs(Form("/eos/user/c/cbasile/www/ECAL_TB2021/PlotDebug/ampl_spectrum_%s.png",channel.c_str()));
+
+		  //TH1D FULLampl_spectrum("FULLampl_spectrum","", 
+		  // 	  Re.size(),0., Re.size()/oversamplingMap_[channel].second);
+		  //for(unsigned int i=1; i<=FULLampl_spectrum.GetNbinsX(); ++i){
+		  //   FULLampl_spectrum.SetBinContent(i, sqrt(pow(Re.at(i-1), 2)+pow(Im.at(i-1), 2)));
+		  //   cout << Form(" i = %d \t A = %.2f", i, sqrt(pow(Re.at(i-1), 2)+pow(Im.at(i-1), 2)) ) << endl;
+		  //}	  
+		  //FULLampl_spectrum.Draw();
+		  //c->SaveAs(Form("/eos/user/c/cbasile/www/ECAL_TB2021/PlotDebug/FULLampl_spectrum_%s.png",channel.c_str()));
+		  while(Re.size() < n_samples)
+		  {
+			  auto mag = ampl_extrapolation.Eval(Re.size()/oversamplingMap_[channel].second);
+			  auto phase = gRandom->Uniform(-TMath::Pi(), TMath::Pi());
+			  // Re.insert(Re.begin()+(Re.size()/2), 2,
+			  //           ampl_extrapolation.Eval(Re.size()/oversamplingMap_[channel].second));
             // if(Im.size() < orig_n_sample*2)
             // {
             //     // auto insert_point = Im.size()/2;
@@ -118,7 +141,16 @@ bool DFTTemplate::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins,
                 Im[Re.size()-iSample] = Im[iSample];
             }            
         }
-        fftc2r->SetPointsComplex(Re.data(), Im.data());
+        
+		  //TH1D OVSAMPampl_spectrum("OVSAMPampl_spectrum","", 
+        //Re.size(),0., Re.size()/oversamplingMap_[channel].second);
+        //for(unsigned int i=1; i<=OVSAMPampl_spectrum.GetNbinsX(); ++i)
+        //OVSAMPampl_spectrum.SetBinContent(i, sqrt(pow(Re.at(i-1), 2)+pow(Im.at(i-1), 2)));
+		  //OVSAMPampl_spectrum.Draw();
+		  //c->SetLogy();
+		  //c->SaveAs(Form("/eos/user/c/cbasile/www/ECAL_TB2021/PlotDebug/OVSAMPampl_spectrum_%s.png",channel.c_str()));
+         
+		  fftc2r->SetPointsComplex(Re.data(), Im.data());
         fftc2r->Transform();
         fftc2r->GetPoints(data);
 
