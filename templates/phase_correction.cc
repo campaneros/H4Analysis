@@ -1,4 +1,5 @@
 // g++ templates/phase_correction.cc -O3 -std=c++17 `root-config --libs --cflags` -o bin/phase_correction.exe
+// ./bin/phase_correction.exe [run] [Amin] [Amax]
 
 #include "ROOT/RDataFrame.hxx"
 #include "ROOT/RResultPtr.hxx"
