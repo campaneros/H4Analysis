@@ -20,6 +20,7 @@ RecoEventAnalyzer::RecoEventAnalyzer(map<string, PluginBase*>& plugins, uint64* 
                 auto tree = (TTree*)shared.obj;
                 sTree_->AddFriend(tree, tree->GetName());
                 indexCheckStr_ += std::string(tree->GetName())+".index == index && ";
+					cout << "Tree added as Friend : " << tree->GetName() << endl;
             }
         }
     }
