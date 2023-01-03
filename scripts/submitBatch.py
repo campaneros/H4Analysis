@@ -115,6 +115,7 @@ def htcondorSubmitJobs (run, nfiles, path, cfg, outdir, queue, job_dir, dryrun):
     fsub.write('output      = '+job_dir+'/output/h4reco.$(ClusterId).$(ProcId).out\n')
     fsub.write('error       = '+job_dir+'/output/h4reco.$(ClusterId).$(ProcId).err\n')
     fsub.write('log         = '+job_dir+'/log/h4reco.$(ClusterId).log\n\n')
+    #fsub.write('x509userproxy = '+getProxy()+' \n\n')
     fsub.write('max_retries = 3\n')
     fsub.write('queue {}\n'.format(njobs))
     fsub.close()
@@ -162,8 +163,10 @@ def getNumberOfSpills (run, path, cfg):
             if len(words) == 2:
                 if words[0] == 'path2data':
                     path2data = words[1]
-                    break
+                    print("---> Path to data : {0}".format(path2data))
 
+                    break
+            else: print("No {0} parameter found".format(words[0]))
     datafiles = [name for name in os.listdir(path2data+'/'+run+'/') if os.path.isfile(path2data+'/'+run+'/'+name)]
 
     ## find the number of files in the directory and take this as the number of spills
@@ -203,17 +206,19 @@ if __name__ == '__main__':
     ## check ntuple version
     stageOutDir = args.storage+'/ntuples_'+args.version+'/'
     stageOutDir = stageOutDir.replace('//', '/')
-    
+
     if args.batch == 'lxbatch':
         if getoutput('ls '+stageOutDir) == "":
             print("ntuples version "+args.version+" directory on eos already exist! no jobs created.")
             exit(0)
     getstatusoutput('mkdir -p '+stageOutDir)    
+    print(' ---> OUTPUT directory {0}'.format(stageOutDir))    
     
     ## job setup
     local_path = getoutput('pwd')
+    print(local_path)
     date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    job_dir = local_path+"/"+date+"_ntuples_"+args.version
+    job_dir = local_path+"/JobsDirectory/"+date+"_ntuples_"+args.version
     getstatusoutput('mkdir -p '+job_dir)
     if local_path.endswith('scripts'):
         local_path = local_path[:-len('scripts')]
@@ -234,11 +239,12 @@ if __name__ == '__main__':
 
     ## create jobs
     getstatusoutput('tar --exclude-vcs --exclude="20*_ntuples*" -cjf '+job_dir+'/job.tar -C '+local_path+' .')
-    print('submitting', len(args.runs), 'jobs to queue', args.queue)
+    print('**** submitting', len(args.runs), 'run-jobs to queue', args.queue)
 
     if args.batch == 'condor':
         if args.spillsperjob > 0:
             for run in args.runs:
+                print('**** Setting up jobs for RUN {0}'.format(run))
                 htcondorSubmitJobs(run, args.spillsperjob, local_path, args.cfg, stageOutDir, args.queue, job_dir, args.dryrun)
         else:
             htcondorSubmitJob(args.runs, local_path, args.cfg, stageOutDir, args.queue, job_dir, args.dryrun)
@@ -261,3 +267,4 @@ if __name__ == '__main__':
                 jobctr += 1
             if not args.dryrun:
                 print('submitted {j} jobs to {b}'.format(j=jobctr, b=args.batch))
+
