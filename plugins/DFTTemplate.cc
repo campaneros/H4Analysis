@@ -68,21 +68,27 @@ bool DFTTemplate::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins,
 		  //auto orig_n_sample = Im.size();
 
 		  //---not so general FIXME
-		//  cout << Form ("TH1D: #bins = %.0f xlow = %.2f xhigh = %.2f",
-		//		  Re.size()/4.,
-		//		  Re.size()/4./oversamplingMap_[channel].second,
-		//		  Re.size()/2./oversamplingMap_[channel].second) << endl;
 		  TH1D ampl_spectrum("ampl_spectrum","", 
 				  Re.size()/4.,
 				  Re.size()/4./oversamplingMap_[channel].second,
 				  Re.size()/2./oversamplingMap_[channel].second);
 		  TF1 ampl_extrapolation("fextr", "expo", Re.size()/4./oversamplingMap_[channel].second, Re.size()/2./oversamplingMap_[channel].second);
-		  //cout << Form("FITrange : xlow = %.2f  xhigh = %.2f ", Re.size()/4./oversamplingMap_[channel].second, Re.size()/2./oversamplingMap_[channel].second) << endl;
 		  for(unsigned int i=1; i<=ampl_spectrum.GetNbinsX(); ++i)
-			  ampl_spectrum.SetBinContent(i, sqrt(pow(Re.at(Re.size()/4+i-1), 2)+pow(Im.at(Im.size()/4+i-1), 2)));
+			ampl_spectrum.SetBinContent(i, sqrt(pow(Re.at(Re.size()/4+i-1), 2)+pow(Im.at(Im.size()/4+i-1), 2)));
+
 		  ampl_spectrum.Fit(&ampl_extrapolation, "QRSO");
-		  //ampl_spectrum.Draw();
-		  //c->SaveAs(Form("/eos/user/c/cbasile/www/ECAL_TB2021/PlotDebug/ampl_spectrum_%s.png",channel.c_str()));
+		  //double Chi2 = ampl_spectrum.GetFunction("fextr")->GetChisquare();
+		  //if ( Chi2 > 3. && Chi2 < 10e3){
+		  //   cout << "BAD Chi2 " << Chi2 << endl;
+		  //   ampl_spectrum.Rebin(2);
+		  //   ampl_spectrum.Fit(&ampl_extrapolation, "QRSO");
+		  //}
+		  ////ampl_spectrum.Draw();
+		  //c->SaveAs(Form("/eos/user/c/cbasile/www/ECAL_TB2021/PlotDebug/ampl_spectrum_%s_%d_%d.png",channel.c_str(), event.runNumber, event.evtNumber));
+
+		  // FIT RESULTS
+		  //cout << "    EV " << event.evtNumber << endl;
+		  //cout << " ---> Chi2 = " << ampl_spectrum.GetFunction("fextr")->GetChisquare() << endl;
 
 		  //TH1D FULLampl_spectrum("FULLampl_spectrum","", 
 		  // 	  Re.size(),0., Re.size()/oversamplingMap_[channel].second);

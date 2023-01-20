@@ -24,6 +24,10 @@ AutoDict_*
 *.o
 *.so
 *.tar
+.vscode
+
+# Proxy file 
+X509_USER_PROXY
 
 # Python cache
 *__pycache__/*

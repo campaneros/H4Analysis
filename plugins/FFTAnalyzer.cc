@@ -152,8 +152,10 @@ bool FFTAnalyzer::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins,
             int first_sample = opts.GetOpt<int>(channel+".signalWin", 0);
             int last_sample = opts.GetOpt<int>(channel+".signalWin", 1);
             auto fftr2c = TVirtualFFT::FFT(1, &n_samples, "C2CF M");
+            //cout << " === EV " << event.evtNumber << endl;
             for(unsigned int i=first_sample; i<last_sample; ++i)
             {
+                //cout << Form("i = %d  A = %.2f", i, samples_norm[i]) << endl;
                 iRe[i-first_sample] = samples_norm[i];
                 iIm[i-first_sample] = 0.;
             }
