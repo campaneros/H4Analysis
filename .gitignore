@@ -35,3 +35,7 @@ X509_USER_PROXY
 # Docs output
 docs/build/*
 docs/xml/*
+
+# Job Reports
+JobDirectory/*
+JobReport/*
