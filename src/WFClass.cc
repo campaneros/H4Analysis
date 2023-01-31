@@ -401,6 +401,7 @@ void WFClass::SetTemplate(TH1* templateWF)
 
     interpolator_ = new ROOT::Math::Interpolator(0, ROOT::Math::Interpolation::kCSPLINE);
     tmplFitTime_ = templateWF->GetBinCenter(templateWF->GetMaximumBin());
+    //std::cout << " ... MAX time in template " << tmplFitTime_ <<std::endl;
     tmplFitAmp_ = -1;
 
     //---fill interpolator data
@@ -475,7 +476,7 @@ bool WFClass::ApplyCalibration()
 {
     if(!calibration_)
     {
-        std::cout << "[WFClass]::ERROR::No calibration available" << std::endl;
+        //std::cout << "[WFClass]::ERROR::No calibration available" << std::endl;
         return false;
     }
 
@@ -556,6 +557,7 @@ WFBaseline WFClass::SubtractBaseline(float baseline)
 //----------template fit to the WF--------------------------------------------------------
 WFFitResults WFClass::TemplateFit(float amp_threshold, float offset, int lW, int hW)
 {
+    //std::cout << "called TemplateFit with Ath offset  lW hW "<< amp_threshold << "\t" << offset << "\t"  << lW << "\t" << hW << std::endl; 
     double tmplFitChi2=0;
     if(tmplFitAmp_ == -1)
     {
@@ -566,6 +568,7 @@ WFFitResults WFClass::TemplateFit(float amp_threshold, float offset, int lW, int
             GetAmpMax();    
             fWinMin_ = maxSample_ + int(offset/tUnit_) - lW;
             fWinMax_ = maxSample_ + int(offset/tUnit_) + hW;
+            //std::cout << " ... min / max " <<  fWinMin_ << "\t" << fWinMax_ << " wrt -> " << maxSample_  << std::endl;
             //---setup minimization
             auto t0 = GetInterpolatedAmpMax().time;
             ROOT::Math::Functor chi2(this, &WFClass::TemplateChi2, 2);
@@ -589,6 +592,7 @@ WFFitResults WFClass::TemplateFit(float amp_threshold, float offset, int lW, int
             return GetInterpolatedAmpMax();
     }
 
+    //std::cout << "At the end AmpMAX is " << tmplFitAmp_ << std::endl;
     return WFFitResults{tmplFitAmp_, tmplFitTime_, tmplFitTimeErr_, TemplateChi2()/(fWinMax_-fWinMin_+1-2), 0};
 }
 
@@ -632,7 +636,7 @@ void WFClass::EmulatedWF(WFClass& wf,float rms, float amplitude, float time)
 
     if (tmplFitTime_ == -1)
     {
-        std::cout << "ERROR: no TEMPLATE for this WF" << std::endl;
+        //std::cout << "ERROR: no TEMPLATE for this WF" << std::endl;
         return;
     }
 
@@ -649,7 +653,7 @@ void WFClass::FFT(WFClass& wf, float tau, int cut)
 {
     if(samples_.size() == 0)
     {
-        std::cout << "ERROR: EMPTY WF" << std::endl;
+        //std::cout << "ERROR: EMPTY WF" << std::endl;
         return;
     }
 
@@ -776,6 +780,7 @@ double WFClass::TemplateChi2(const double* par)
             {
                 //auto deriv = tmplFitAmp_*interpolator_->Deriv(times_[iSample]-tmplFitTime_);
                 auto err2 = bRMS_*bRMS_;// + pow(tUnit_/sqrt(12)*deriv/2, 2);
+                //std::cout << iSample << "\t Ai = " << samples_.at(iSample) << "\t A*interpol(Dti) = " << interpolator_->Eval(times_[iSample]-tmplFitTime_) * tmplFitAmp_<< std::endl;
                 delta2 = pow((samples_.at(iSample) - tmplFitAmp_*interpolator_->Eval(times_[iSample]-tmplFitTime_)), 2)/err2;
             }
             chi2 += delta2;

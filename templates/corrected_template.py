@@ -45,7 +45,8 @@ for e in range(nentries):
     h4.GetEntry(e)
     digi_t.GetEntry(e)
     if e % 1000 == 0: print (f'{e} / {nentries}')
-    h4.Draw(f'{dtime}:{phase}:n_tracks==1 && fabs(track_tree.fitResult.x()-5)<4 && fabs(track_tree.fitResult.y()-5)<4 && digi_t.amp_max[C2_T]>{args.minamp} && fit_ampl[MCP1]>80 && digi_t.amp_max[C2_T]<{args.maxamp}','','goff', 1, e)
+    h4.Draw(f'{dtime}:{phase}:digi_t.amp_max[C2_T]>{args.minamp} && fit_ampl[MCP1]>80 && digi_t.amp_max[C2_T]<{args.maxamp}','','goff', 1, e)
+	#n_tracks==1 && fabs(track_tree.fitResult.x()-5)<4 && fabs(track_tree.fitResult.y()-5)<4 (removed: may create bad templates) 
     dtime = h4.GetVal(0)[0]
     phase = h4.GetVal(1)[0]
     selection = h4.GetVal(2)[0]

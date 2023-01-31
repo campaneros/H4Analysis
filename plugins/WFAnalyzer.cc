@@ -226,6 +226,7 @@ bool WFAnalyzer::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins, 
         //---template fit (only specified channels)
         if(opts.OptExist(channel+".templateFit.file"))
         {
+            //std::cout << "--> Channel " << channel << std::endl;
             auto fitResults = WFs_[channel]->TemplateFit(
                 opts.OptExist(channel+".templateFit.amplitudeThreshold") ? opts.GetOpt<float>(channel+".templateFit.amplitudeThreshold") : 0,
                 opts.GetOpt<float>(channel+".templateFit.fitWin", 0),
@@ -233,6 +234,7 @@ bool WFAnalyzer::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins, 
                 opts.GetOpt<int>(channel+".templateFit.fitWin", 2));
 
             digiTree_.fit_ampl[outCh] = fitResults.ampl;
+            //std::cout << fitResults.ampl << std::endl;
             digiTree_.fit_time[outCh] = fitResults.time;
             digiTree_.fit_terr[outCh] = fitResults.error;            
             digiTree_.fit_chi2[outCh] = fitResults.chi2;

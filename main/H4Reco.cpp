@@ -313,6 +313,7 @@ int main(int argc, char* argv[])
 	    mainTree.Fill();
 	    ++nEvents;
         }
+	cout << ">>> TOTAL rocessed events: " << nEvents << "\033[0m" << endl;
 
 	//---end
 	for(auto& plugin : pluginSequence)
