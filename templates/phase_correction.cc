@@ -1,5 +1,5 @@
-// g++ templates/phase_correction.cc -O3 -std=c++17 `root-config --libs --cflags` -o bin/phase_correction.exe
-// ./bin/phase_correction.exe [run] [Amin] [Amax]
+// g++ templates/phase_correction.cc -O3 -std=c++17 -lstdc++fs `root-config --libs --cflags` -o bin/phase_correction.exe
+// ./bin/phase_correction.exe [run] [Amin] [Amax] [path]
 
 #include "ROOT/RDataFrame.hxx"
 #include "ROOT/RResultPtr.hxx"
@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <vector>
 #include <tuple>
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
 
 using namespace std;
 
@@ -162,6 +164,10 @@ int main (int argc, char *argv[])
         }
     }
     
+	 fs::path out_path = Form("%s/%i/templ", path.Data(), run);
+    cout << " the directory exists ? " << fs::exists(out_path) << endl;
+    if (!fs::exists(out_path)) fs::create_directory(Form("%s/%i/templ", path.Data(), run));
+    cout << " the directory exists ? " << fs::exists(out_path) << endl;
     if (save_friend){
         ROOT::RDF::RNode corr = df;
         //corr = corr.Define("dtime", "digi_t.fit_time[C2_T]-fit_time[MCP1]+fit_time[CLK]-int((digi_t.fit_time[C2_T]-fit_time[MCP1]+fit_time[CLK])/6.238)*6.238")

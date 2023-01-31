@@ -7,13 +7,13 @@ import datetime
 import glob
 import argparse
 
-def submit(run, path, prefix, minamp, maxamp, queue, job_dir):
+def submit(run, path, inpath, prefix, minamp, maxamp, queue, job_dir):
     jobname = f'{job_dir}/corrected_templates_{prefix}'
     fsh = open (jobname+'.sh', 'w')
     fsh.write ('#!/bin/sh' + '\n\n')
     fsh.write ('cd '+path+' \n')
     fsh.write ('source scripts/setup.sh \n')
-    fsh.write (f'python templates/corrected_template.py --run {run} --prefix {prefix} --minamp {minamp} --maxamp {maxamp}\n\n')
+    fsh.write (f'python templates/corrected_template.py --run {run} --prefix {prefix} --minamp {minamp} --maxamp {maxamp} --path {inpath}\n\n')
     fsh.close ()
     #---HTCondor submit file
     fsub = open (f'{jobname}.sub', 'w')
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     local_path = getoutput('pwd')
     date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    job_dir = local_path+"/"+date+"_templates"
+    job_dir = local_path+"/JobReport/"+date+"_templates"
     print ("Jobs directory: " + job_dir)
     getstatusoutput('mkdir -p '+job_dir)
 
@@ -53,8 +53,11 @@ if __name__ == '__main__':
     #dummy splitting: just split in 9 or less jobs
     files = glob.glob(f'{args.path}/{run}/*.root')
     njobs = int(len(files)/10)
+    print(f'... I should do {njobs} jobs')
     if njobs > 9: njobs = 9
     print(f'submitting run {run}, {njobs} jobs to queue {args.queue}')
 
-    for prefix in range(2, njobs):
-        submit(run, local_path, prefix, args.minamp, args.maxamp, args.queue, job_dir)
+    for prefix in range(1, njobs+1):
+        #print(prefix)
+        #print(f'{args.path}/{run}/{prefix}*.root')
+        submit(run, local_path, args.path, prefix, args.minamp, args.maxamp, args.queue, job_dir)

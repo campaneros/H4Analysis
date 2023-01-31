@@ -3,7 +3,7 @@ import argparse
 
 parser = argparse.ArgumentParser (description = 'get smooth template')
 parser.add_argument('-r', '--run' , help='run to be processed', type = int, default = 15153)
-parser.add_argument('--path' , default = '/eos/user/c/cbasile/ECAL_TB2021/ntuples_templates')
+parser.add_argument('--path' , default = '/eos/user/c/cbasile/ECAL_TB2021/ntuples_templates/ntuples_v0')
 #/eos/home-c/camendol/ECALTB/ECAL_TB_Oct2021/ntuples/ECAL_H4_Oct2021/ntuples_c2escan_v2//')
 parser.add_argument('--fname' , default = 'corrected_template')
 parser.add_argument('--hname' , default = 'tmpl') # histogram
@@ -22,7 +22,7 @@ for ibin in range(1, tmpl.GetNbinsX(), 2):
     thisbin = tmpl.ProjectionY("thisbin", ibin, ibin+2)
     thisbin.SetAxisRange(thisbin.GetMean()-1*thisbin.GetRMS(), thisbin.GetMean()+1*thisbin.GetRMS())
     smooth_tmpl.SetBinContent(int(ibin/2)+1, thisbin.GetMean())
-    print (ibin, thisbin.GetMean())
+    #print (ibin, thisbin.GetMean())
 
 smooth_tmpl.SetDirectory(f)
 if (hname+"_smooth" in ROOT.gDirectory.GetListOfKeys()): ROOT.gDirectory.Delete(hname+"_smooth*");
