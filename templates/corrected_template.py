@@ -23,10 +23,18 @@ files = glob.glob(f'{path}/{run}/{prefix}*.root')
 h4 = ROOT.TChain('h4')
 digi_t = ROOT.TChain('digi_t')
 track_tree = ROOT.TChain('track_tree')
+hodo1_X = ROOT.TChain('h1X')
+hodo1_Y = ROOT.TChain('h1Y')
+hodo2_X = ROOT.TChain('h2X')
+hodo2_Y = ROOT.TChain('h2Y')
 for f in files:
     h4.Add(f)
     digi_t.Add(f)
     track_tree.Add(f)
+    hodo1_X.Add(f)
+    hodo1_Y.Add(f)
+    hodo2_X.Add(f)
+    hodo2_Y.Add(f)
     print(f'+ Adding file {f}')
 
 dtime = 'digi_t.time_max[C2_T]-fit_time[MCP1]+fit_time[CLK]-int((digi_t.time_max[C2_T]-fit_time[MCP1]+fit_time[CLK])/6.238)*6.238'
@@ -45,7 +53,7 @@ for e in range(nentries):
     h4.GetEntry(e)
     digi_t.GetEntry(e)
     if e % 1000 == 0: print (f'{e} / {nentries}')
-    h4.Draw(f'{dtime}:{phase}:digi_t.amp_max[C2_T]>{args.minamp} && fit_ampl[MCP1]>80 && digi_t.amp_max[C2_T]<{args.maxamp}','','goff', 1, e)
+    h4.Draw(f'{dtime}:{phase}: fabs(h1X.clusters.X_) < 5 && fabs(h1Y.clusters.Y_) < 5 && fabs(h2X.clusters.X_) < 5 && fabs(h2Y.clusters.Y_) < 5 && digi_t.amp_max[C2_T]>{args.minamp} && fit_ampl[MCP1]>80 && digi_t.amp_max[C2_T]<{args.maxamp}','','goff', 1, e)
 	#n_tracks==1 && fabs(track_tree.fitResult.x()-5)<4 && fabs(track_tree.fitResult.y()-5)<4 (removed: may create bad templates) 
     dtime = h4.GetVal(0)[0]
     phase = h4.GetVal(1)[0]
