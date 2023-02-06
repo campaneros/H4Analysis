@@ -31,8 +31,6 @@ int main (int argc, char *argv[])
 
 
 	 if (path == "") path = "/eos/user/c/cbasile/ECAL_TB2021/ntuples_templates";
-///eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Oct2021/ntuples_templates_v8";
-///eos/home-c/camendol/ECALTB/ECAL_TB_Oct2021/ntuples/ECAL_H4_Oct2021_templates/ntuples_templates_v6/
     cout << Form ( "Ntuples path: %s/%i", path.Data(), run) <<endl; 
 
     gSystem->Load("lib/libH4Analysis.so");

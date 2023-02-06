@@ -12,12 +12,12 @@ parser.add_argument('--path' , default = '/eos/home-c/camendol/ECALTB/ECAL_TB_Oc
 args = parser.parse_args ()
 
 h4 = ROOT.TChain('h4')
-#digi_t = ROOT.TChain('digi_t')
-#track_tree = ROOT.TChain('track_tree')
+digi_t = ROOT.TChain('digi_t')
+track_tree = ROOT.TChain('track_tree')
 
 h4.Add(f'{args.path}/{args.run}/*.root')
-#digi_t.Add(f'{args.path}/{args.run}/*.root')
-#track_tree.Add(f'{args.path}/{args.run}/*.root')
+digi_t.Add(f'{args.path}/{args.run}/*.root')
+track_tree.Add(f'{args.path}/{args.run}/*.root')
 
 print("loaded chain")
 
@@ -45,6 +45,6 @@ for key, value in plots2D.items():
     print("created")
     h = ROOT.gDirectory.Get("h")
     h.Draw("colz")
-    c.SaveAs(f'/eos/home-c/camendol/www/ECALTB2021/templates/{args.run}/{key}.pdf')
-    c.SaveAs(f'/eos/home-c/camendol/www/ECALTB2021/templates/{args.run}/{key}.png')
+    c.SaveAs(f'/eos/user/c/cbasile/www/ECAL_TB2021/my_templates/{args.run}/{key}.pdf')
+    c.SaveAs(f'/eos/user/c/cbasile/www/ECAL_TB2021/my_templates/{args.run}/{key}.png')
     
