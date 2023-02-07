@@ -11,11 +11,15 @@ parser.add_argument('--path' , default = '/eos/user/c/cbasile/ECAL_TB2021/ntuple
 #/eos/home-c/camendol/ECALTB/ECAL_TB_Oct2021/ntuples/ECAL_H4_Oct2021_templates/ntuples_templates_v5/')
 parser.add_argument('--minamp' , type = int, default = 1500)
 parser.add_argument('--maxamp' , type = int, default = 3000)
+parser.add_argument('--cx' , type = float, default =  0.0)
+parser.add_argument('--cy' , type = float, default = -5.0)
 
 args = parser.parse_args ()
 prefix = args.prefix
 run = args.run
 path = args.path
+Cx = args.cx
+Cy = args.cy
 
 files = glob.glob(f'{path}/{run}/{prefix}*.root')
 
@@ -49,23 +53,44 @@ tmpl = ROOT.TH2F('tmpl', '', 5000, 120, 230,  1000, -0.1, 1.1);
 
 
 nentries = h4.GetEntries()
+print(f'... {nentries} events to be processed')
+print(f'fabs(h1X.clusters.X_- {Cx}) < 5 && fabs(h1Y.clusters.Y_ - {Cy}) < 5  && digi_t.amp_max[C2_T]>{args.minamp} && fit_ampl[MCP1]>80 && digi_t.amp_max[C2_T]<{args.maxamp}')
 for e in range(nentries):
     h4.GetEntry(e)
     digi_t.GetEntry(e)
     if e % 1000 == 0: print (f'{e} / {nentries}')
-    h4.Draw(f'{dtime}:{phase}: fabs(h1X.clusters.X_) < 5 && fabs(h1Y.clusters.Y_) < 5 && fabs(h2X.clusters.X_) < 5 && fabs(h2Y.clusters.Y_) < 5 && digi_t.amp_max[C2_T]>{args.minamp} && fit_ampl[MCP1]>80 && digi_t.amp_max[C2_T]<{args.maxamp}','','goff', 1, e)
-	#n_tracks==1 && fabs(track_tree.fitResult.x()-5)<4 && fabs(track_tree.fitResult.y()-5)<4 (removed: may create bad templates) 
+
+    h4.Draw(f'{dtime}:{phase}: fabs(h1X.clusters.X_- {Cx}) < 5 && fabs(h1Y.clusters.Y_ - {Cy} ) < 5  && digi_t.amp_max[C2_T]>{args.minamp} && fit_ampl[MCP1]>80 && digi_t.amp_max[C2_T]<{args.maxamp}','','goff', 1, e)
+    
     dtime = h4.GetVal(0)[0]
     phase = h4.GetVal(1)[0]
     selection = h4.GetVal(2)[0]
+
     if selection == 1:
         n = h4.Draw('WF_val:WF_time>>h','WF_ch==C2', 'goff', 1, e)
         WF_val = h4.GetVal(0)
         WF_time = h4.GetVal(1)
+        noZeros = False
+        noDouble = True
         for i in range (25, 55):
-            if h4.amp_max[h4.C2_T] < 1e-9: continue
-            tmpl_corr.Fill(WF_time[i]-(digi_t.time_max[h4.C2_T]-corr.GetBinContent(corr.FindBin(digi_t.time_max[h4.C2_T]-int(digi_t.time_max[h4.C2_T]/6.238)*6.238))), WF_val[i]/digi_t.amp_max[h4.C2_T]) 
-            tmpl.Fill(WF_time[i], WF_val[i]/digi_t.amp_max[h4.C2_T]) 
+            corr_time = WF_time[i]-(digi_t.time_max[h4.C2_T]-corr.GetBinContent(corr.FindBin(digi_t.time_max[h4.C2_T]-int(digi_t.time_max[h4.C2_T]/6.238)*6.238)))
+            if(corr_time > 150 and corr_time < 170):
+                if(WF_val[i]/digi_t.amp_max[h4.C2_T] > 0.5): 
+                    noZeros = True 
+                    break
+            if(corr_time < 140 or corr_time > 170):
+                if(WF_val[i]/digi_t.amp_max[h4.C2_T] > 0.1):
+                    noDouble = False
+                    break
+
+        if (noZeros and noDouble):
+            for i in range (25, 55):
+                if h4.amp_max[h4.C2_T] < 1e-9: continue
+                #corr_time = WF_time[i]-(digi_t.time_max[h4.C2_T]-corr.GetBinContent(corr.FindBin(digi_t.time_max[h4.C2_T]-int(digi_t.time_max[h4.C2_T]/6.238)*6.238)))
+                #ampl = WF_val[i]/digi_t.amp_max[h4.C2_T]
+                #print(f't = {corr_time}  A = {ampl}')
+                tmpl_corr.Fill(WF_time[i]-(digi_t.time_max[h4.C2_T]-corr.GetBinContent(corr.FindBin(digi_t.time_max[h4.C2_T]-int(digi_t.time_max[h4.C2_T]/6.238)*6.238))), WF_val[i]/digi_t.amp_max[h4.C2_T])
+                tmpl.Fill(WF_time[i], WF_val[i]/digi_t.amp_max[h4.C2_T]) 
 
 histos = ROOT.TFile.Open(f'{path}/{run}/templ/corrected_template_{prefix}.root', 'RECREATE')
 print(f'Saved file : {path}/{run}/templ/corrected_template_{prefix}.root')

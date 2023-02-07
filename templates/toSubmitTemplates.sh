@@ -19,7 +19,7 @@ python templates/submit_template.py -r 15190  -q longlunch --minamp 2000 --maxam
 
 
 # 150 GeV
-#python templates/submit_template.py -r 15158 -q longlunch --minamp 1500 --maxamp 4000 --path /eos/user/c/cbasile/ECAL_TB2021/ntuples_templates/ntuples_v1/ 
+#python templates/submit_template.py -r 15158 -q longlunch --minamp 1500 --maxamp 4000 --cx 5.0 --path /eos/user/c/cbasile/ECAL_TB2021/ntuples_templates/ntuples_v1/ 
 
 # 175 GeV
 #python templates/submit_template.py -r 15208  -q longlunch --minamp 2000 --maxamp 5000 --path /eos/user/c/cbasile/ECAL_TB2021/ntuples_templates/ntuples_v1/ 
