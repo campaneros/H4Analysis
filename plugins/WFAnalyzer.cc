@@ -184,6 +184,7 @@ bool WFAnalyzer::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins, 
                                                                   opts.GetOpt<int>(channel+".signalWin", 2)/2,
                                                                   opts.GetOpt<int>(channel+".signalWin", 2)/2,
                                                                   max_function);
+				//if (interpolAmpMax.ampl < 0.1 && channel == "C2")  std::cout << "... ev " << event.evtNumber << "\t ch " << channel << "\t Amax " << interpolAmpMax.ampl << std::endl;  
         }
         digiTree_.pedestal[outCh] = baselineInfo.baseline;
 	WFClassLiTEDTU* islitedtu = dynamic_cast<WFClassLiTEDTU*>(WFs_[channel]);

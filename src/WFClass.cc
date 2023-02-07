@@ -121,7 +121,7 @@ WFFitResults WFClass::GetInterpolatedAmpMax(int min, int max, int nmFitSamples, 
         fitAmpMax_ = 1000;
         fitChi2Max_ = -1;
     }
-
+	 //std::cout << "... max " << fitAmpMax_ << std::endl;
     return WFFitResults{fitAmpMax_, fitTimeMax_, bRMS_, fitChi2Max_, 0};
 }
 
