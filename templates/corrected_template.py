@@ -1,6 +1,7 @@
 import ROOT
 import argparse
 import glob
+import numpy
 
 ROOT.gSystem.Load("lib/libH4Analysis.so")
 
@@ -72,16 +73,19 @@ for e in range(nentries):
         WF_time = h4.GetVal(1)
         noZeros = False
         noDouble = True
+        central_wf = []
+        pedestal_wf = []
         for i in range (25, 55):
             corr_time = WF_time[i]-(digi_t.time_max[h4.C2_T]-corr.GetBinContent(corr.FindBin(digi_t.time_max[h4.C2_T]-int(digi_t.time_max[h4.C2_T]/6.238)*6.238)))
-            if(corr_time > 150 and corr_time < 170):
-                if(WF_val[i]/digi_t.amp_max[h4.C2_T] > 0.5): 
-                    noZeros = True 
-                    break
-            if(corr_time < 140 or corr_time > 170):
-                if(WF_val[i]/digi_t.amp_max[h4.C2_T] > 0.1):
-                    noDouble = False
-                    break
+            if(corr_time > 145 and corr_time < 175):
+                central_wf.append(WF_val[i]/digi_t.amp_max[h4.C2_T])
+                #if(WF_val[i]/digi_t.amp_max[h4.C2_T] > 0.5): 
+            if(corr_time < 140 or corr_time > 180):
+                #if(WF_val[i]/digi_t.amp_max[h4.C2_T] > 0.1):
+                pedestal_wf.append(WF_val[i]/digi_t.amp_max[h4.C2_T])
+        #if (sum(central_wf)/float(len(central_wf))  > 0.5) : noZeros = True
+        if (numpy.mean(central_wf)  > 0.5) : noZeros = True
+        if (numpy.mean(pedestal_wf) > 0.05) : noDouble = False
 
         if (noZeros and noDouble):
             for i in range (25, 55):
