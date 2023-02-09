@@ -53,7 +53,7 @@ c.cd(1)
 h_hodo1.Draw('COLZ')
 c.cd(2)
 h_hodo2.Draw('COLZ')
-c.SaveAs(outdir+'/Hodoscopes2D_noF.png')
+c.SaveAs(outdir+'/Hodoscopes2D.png')
 
 c2 = ROOT.TCanvas("c2", "", 1024, 1024)
 c2.Divide(2,2)
