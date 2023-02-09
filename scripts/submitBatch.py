@@ -265,7 +265,7 @@ if __name__ == '__main__':
                     if 'importCfg' in words[0]:
                         outname = getPath2data(local_path, words[1], 'outNameSuffix')
                         break
-    print(f' [OUTPUT] Intermediate location is {outname}/{run}/')
+    print(f' [OUTPUT] Intermediate location is {outname}/')
     
     ## resubmit failed
     if args.resub:
