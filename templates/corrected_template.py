@@ -27,6 +27,7 @@ files = glob.glob(f'{path}/{run}/{prefix}*.root')
 
 h4 = ROOT.TChain('h4')
 digi_t = ROOT.TChain('digi_t')
+digi= ROOT.TChain('digi')
 track_tree = ROOT.TChain('track_tree')
 hodo1_X = ROOT.TChain('h1X')
 hodo1_Y = ROOT.TChain('h1Y')
@@ -35,6 +36,7 @@ hodo2_Y = ROOT.TChain('h2Y')
 for f in files:
     h4.Add(f)
     digi_t.Add(f)
+    digi.Add(f)
     track_tree.Add(f)
     hodo1_X.Add(f)
     hodo1_Y.Add(f)
@@ -55,47 +57,46 @@ tmpl = ROOT.TH2F('tmpl', '', 5000, 120, 230,  1000, -0.1, 1.1);
 
 nentries = h4.GetEntries()
 print(f'... {nentries} events to be processed')
-print(f'fabs(h1X.clusters.X_- {Cx}) < 5 && fabs(h1Y.clusters.Y_ - {Cy}) < 5  && digi_t.amp_max[C2_T]>{args.minamp} && fit_ampl[MCP1]>80 && digi_t.amp_max[C2_T]<{args.maxamp}')
+Nsaturated = 0
 for e in range(nentries):
     h4.GetEntry(e)
     digi_t.GetEntry(e)
+    digi.GetEntry(e)
+    hodo1_X.GetEntry(e)
+    hodo1_Y.GetEntry(e)
     if e % 1000 == 0: print (f'{e} / {nentries}')
 
-    h4.Draw(f'{dtime}:{phase}: fabs(h1X.clusters.X_- {Cx}) < 5 && fabs(h1Y.clusters.Y_ - {Cy} ) < 5  && digi_t.amp_max[C2_T]>{args.minamp} && fit_ampl[MCP1]>80 && digi_t.amp_max[C2_T]<{args.maxamp}','','goff', 1, e)
+    N = h4.Draw(f'{dtime}:{phase}: trg ==PHYS && fabs(h1X.clusters.X_- {Cx}) < 5 && fabs(h1Y.clusters.Y_ - {Cy} ) < 5  && digi_t.amp_max[C2_T]>{args.minamp} && fit_ampl[MCP1]>120&& digi_t.amp_max[C2_T]<{args.maxamp}','','goff', 1, e)
     
     dtime = h4.GetVal(0)[0]
     phase = h4.GetVal(1)[0]
     selection = h4.GetVal(2)[0]
 
-    if selection == 1:
+    #if selection == 1:
+    if N > 0 :
+        print(N)
         n = h4.Draw('WF_val:WF_time>>h','WF_ch==C2', 'goff', 1, e)
+        if( n > 90 ):
+            Nsaturated += 1
+            continue
         WF_val = h4.GetVal(0)
         WF_time = h4.GetVal(1)
-        noZeros = False
-        noDouble = True
-        central_wf = []
-        pedestal_wf = []
-        for i in range (25, 55):
-            corr_time = WF_time[i]-(digi_t.time_max[h4.C2_T]-corr.GetBinContent(corr.FindBin(digi_t.time_max[h4.C2_T]-int(digi_t.time_max[h4.C2_T]/6.238)*6.238)))
-            if(corr_time > 145 and corr_time < 175):
-                central_wf.append(WF_val[i]/digi_t.amp_max[h4.C2_T])
-                #if(WF_val[i]/digi_t.amp_max[h4.C2_T] > 0.5): 
-            if(corr_time < 140 or corr_time > 180):
-                #if(WF_val[i]/digi_t.amp_max[h4.C2_T] > 0.1):
-                pedestal_wf.append(WF_val[i]/digi_t.amp_max[h4.C2_T])
-        #if (sum(central_wf)/float(len(central_wf))  > 0.5) : noZeros = True
-        if (numpy.mean(central_wf)  > 0.5) : noZeros = True
-        if (numpy.mean(pedestal_wf) > 0.05) : noDouble = False
+        noZeros = True 
+        max_time = digi.time_max[h4.C2]-(digi_t.time_max[h4.C2_T]-corr.GetBinContent(corr.FindBin(digi_t.time_max[h4.C2_T]-int(digi_t.time_max[h4.C2_T]/6.238)*6.238)))
+        if (max_time <155 or max_time > 170): noZeros = False 
 
-        if (noZeros and noDouble):
+        if (noZeros):
+            #print(f'{e} max time {max_time} ampl {digi.amp_max[h4.C2]}')
+            #print(f'{e} templ max time {max_t_time} ampl {digi_t.amp_max[h4.C2_T]}')
             for i in range (25, 55):
                 if h4.amp_max[h4.C2_T] < 1e-9: continue
-                #corr_time = WF_time[i]-(digi_t.time_max[h4.C2_T]-corr.GetBinContent(corr.FindBin(digi_t.time_max[h4.C2_T]-int(digi_t.time_max[h4.C2_T]/6.238)*6.238)))
-                #ampl = WF_val[i]/digi_t.amp_max[h4.C2_T]
-                #print(f't = {corr_time}  A = {ampl}')
+                corr_time = WF_time[i]-(digi_t.time_max[h4.C2_T]-corr.GetBinContent(corr.FindBin(digi_t.time_max[h4.C2_T]-int(digi_t.time_max[h4.C2_T]/6.238)*6.238)))
+                ampl = WF_val[i]#/digi_t.amp_max[h4.C2_T]
+                print(f't = {corr_time}  A = {ampl}')
                 tmpl_corr.Fill(WF_time[i]-(digi_t.time_max[h4.C2_T]-corr.GetBinContent(corr.FindBin(digi_t.time_max[h4.C2_T]-int(digi_t.time_max[h4.C2_T]/6.238)*6.238))), WF_val[i]/digi_t.amp_max[h4.C2_T])
                 tmpl.Fill(WF_time[i], WF_val[i]/digi_t.amp_max[h4.C2_T]) 
-
+Nsaturated = float(Nsaturated)/nentries
+print(f' ... number of saturated events {Nsaturated}')
 histos = ROOT.TFile.Open(f'{path}/{run}/templ/corrected_template_{prefix}.root', 'RECREATE')
 print(f'Saved file : {path}/{run}/templ/corrected_template_{prefix}.root')
 tmpl.Write()
