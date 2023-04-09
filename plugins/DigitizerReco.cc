@@ -40,17 +40,19 @@ bool DigitizerReco::Begin(map<string, PluginBase*>& plugins, CfgManager& opts, u
     {
         nSamples_[channel] = opts.GetOpt<int>(channel+".nSamples");
         auto tUnit = opts.GetOpt<float>(channel+".tUnit");
+        auto polarity = opts.OptExist(channel+".polarity") ? opts.GetOpt<int>(channel+".polarity") : 1;
         if(opts.OptExist(channel+".type"))
         {
+            std::cout << " >> channel.type" << std::endl;
             if(opts.GetOpt<string>(channel+".type") == "NINO")
-                WFs_[channel] = new WFClassNINO(opts.GetOpt<int>(channel+".polarity"), tUnit);
+                WFs_[channel] = new WFClassNINO(polarity, tUnit);
             else if(opts.GetOpt<string>(channel+".type") == "Clock")
-                WFs_[channel] = new WFClassClock(tUnit);
-            else if(opts.GetOpt<string>(channel+".type") == "LiTEDTU")
-                WFs_[channel] = new WFClassLiTEDTU(opts.GetOpt<int>(channel+".polarity"), tUnit);
+                WFs_[channel] = new WFClassClock(polarity,tUnit);
+            else if(opts.GetOpt<string>(channel+".type") == "LiTeDTU")
+                WFs_[channel] = new WFClassLiTeDTU(polarity, tUnit);
         }
         else
-            WFs_[channel] = new WFClass(opts.GetOpt<int>(channel+".polarity"), tUnit);
+            WFs_[channel] = new WFClass(polarity, tUnit);
         
         
         //---set channel calibration if available
@@ -100,13 +102,13 @@ bool DigitizerReco::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugin
     {
         //---reset and read new WFs_
         WFs_[channel]->Reset();
+	
         auto digiBd = opts.GetOpt<unsigned int>(channel+".digiBoard");
         auto digiGr = opts.GetOpt<unsigned int>(channel+".digiGroup");
         auto digiCh = opts.GetOpt<unsigned int>(channel+".digiChannel");
         auto offset = event.digiMap.at(make_tuple(digiBd, digiGr, digiCh));
         auto max_sample = offset+std::min(nSamples_[channel], event.digiNSamplesMap[make_tuple(digiBd, digiGr, digiCh)]); 
         auto iSample = offset;
-	
         while(iSample < max_sample && event.digiBoard[iSample] != -1)
         {
             //Set the start index cell
@@ -130,7 +132,7 @@ bool DigitizerReco::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugin
             }
             iSample++;
         }
-        
+
         std::cout << " Dopo loop sui samples " << channel << std::endl;
         if(opts.OptExist(channel+".useTrigRef") && opts.GetOpt<bool>(channel+".useTrigRef"))
             WFs_[channel]->SetTrigRef(trigRef);
