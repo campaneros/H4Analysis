@@ -1,5 +1,6 @@
 # Editors temp files
 *.swp
+*.swo
 *~
 *\#*
 .\#*
@@ -28,9 +29,11 @@ AutoDict_*
 
 # Proxy file 
 X509_USER_PROXY
+cbasile.cc
 
 # Python cache
 *__pycache__/*
+*.pyc
 
 # Docs output
 docs/build/*
