@@ -557,12 +557,13 @@ WFBaseline WFClass::SubtractBaseline(float baseline)
 //----------template fit to the WF--------------------------------------------------------
 WFFitResults WFClass::TemplateFit(float amp_threshold, float offset, int lW, int hW)
 {
-    //std::cout << "called TemplateFit with Ath offset  lW hW "<< amp_threshold << "\t" << offset << "\t"  << lW << "\t" << hW << std::endl; 
+    //std::cout << " in TemplateFit() with Ath offset  lW hW "<< amp_threshold << "\t" << offset << "\t"  << lW << "\t" << hW << std::endl; 
     double tmplFitChi2=0;
     if(tmplFitAmp_ == -1)
     {
         if(samples_[maxSample_]>amp_threshold)
         {
+				//std::cout << "   max Amp " << samples_[maxSample_] << std::endl;
             //---set template fit window around maximum, [min, max)
             BaselineRMS();
             GetAmpMax();    
@@ -589,10 +590,11 @@ WFFitResults WFClass::TemplateFit(float amp_threshold, float offset, int lW, int
             delete minimizer;
         }
         else
+				//std::cout << " Just GetInterpolatedAmpMax()" << std::endl;
             return GetInterpolatedAmpMax();
     }
 
-    //std::cout << "At the end AmpMAX is " << tmplFitAmp_ << std::endl;
+    //std::cout << "At the end AmpMAX is " << tmplFitAmp_ << "with bRMS = " << bRMS_ << std::endl;
     return WFFitResults{tmplFitAmp_, tmplFitTime_, tmplFitTimeErr_, TemplateChi2()/(fWinMax_-fWinMin_+1-2), 0};
 }
 
@@ -780,13 +782,13 @@ double WFClass::TemplateChi2(const double* par)
             {
                 //auto deriv = tmplFitAmp_*interpolator_->Deriv(times_[iSample]-tmplFitTime_);
                 auto err2 = bRMS_*bRMS_;// + pow(tUnit_/sqrt(12)*deriv/2, 2);
-                //std::cout << iSample << "\t Ai = " << samples_.at(iSample) << "\t A*interpol(Dti) = " << interpolator_->Eval(times_[iSample]-tmplFitTime_) * tmplFitAmp_<< std::endl;
+                //std::cout << iSample << "\t Ai = " << samples_.at(iSample) << "\t A*interpol(Dti) = " << interpolator_->Eval(times_[iSample]-tmplFitTime_) * tmplFitAmp_ << "\t bRMS " << bRMS_<< std::endl;
                 delta2 = pow((samples_.at(iSample) - tmplFitAmp_*interpolator_->Eval(times_[iSample]-tmplFitTime_)), 2)/err2;
             }
             chi2 += delta2;
+				//std::cout << " X2 " << chi2 << std::endl;
         }
     }
-
     return chi2;
 }
 

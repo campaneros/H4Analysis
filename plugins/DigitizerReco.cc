@@ -85,6 +85,16 @@ bool DigitizerReco::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugin
     
     //---user channels
     bool evtStatus = true;
+    //--- check the time alignement
+//    for (int i = 0; i<6; i++){
+//        long long int Tdiff = event.evtTime[2*i+1]-event.evtTime[0];
+//        //std::cout<< " check desync wrt " << 2*i+1 << " event " << event.evtNumber << " Tdiff " << Tdiff/1000. << std::endl;
+//        if(fabs(Tdiff/1000.) > 0.5){
+//            evtStatus = false;
+//            std::cout<< " found desync wrt " << 2*i+1 << " event " << event.evtNumber << " Tdiff " << Tdiff << std::endl;
+//        }
+//    }
+//
     
     for(auto& channel : channelsNames_)
     {
@@ -107,18 +117,18 @@ bool DigitizerReco::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugin
             //---skip everything if one channel is bad
             if(event.digiSampleValue[iSample] > 1e6)
             {
-		evtStatus = false;
+                evtStatus = false;
                 WFs_[channel]->AddSample(4095);
             }
             else if (channel == "CLK")
             {
-		WFs_[channel]->AddSample(event.digiSampleValue[iSample]);
+                WFs_[channel]->AddSample(event.digiSampleValue[iSample]);
             }
-	    else
+            else
             {
-		WFs_[channel]->AddSample(event.digiSampleValue[iSample], event.digiSampleGain[iSample]);
+                WFs_[channel]->AddSample(event.digiSampleValue[iSample], event.digiSampleGain[iSample]);
             }
-	    iSample++;
+            iSample++;
         }
         if(opts.OptExist(channel+".useTrigRef") && opts.GetOpt<bool>(channel+".useTrigRef"))
             WFs_[channel]->SetTrigRef(trigRef);

@@ -60,6 +60,8 @@ const std::vector<std::vector<double> >& RecoEventAnalyzer::GetValues(std::strin
     lastValues_.resize(n_vals);
 
     //---get values
+    //std::cout << " - RecoEventAnalyzer.cc : GetValues() " << std::endl;
+	 //std::cout << " \t selection : " << (indexCheckStr_+cuts).c_str() << "\n \t expression " << expr.c_str() << std::endl;
     auto size = sTree_->Draw(expr.c_str(), (indexCheckStr_+cuts).c_str(), "goff", 1, sTree_->GetEntriesFast()-1);
     for(unsigned int i=0; i<n_vals; ++i)
         lastValues_[i].assign(sTree_->GetVal(i), sTree_->GetVal(i)+size);

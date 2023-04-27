@@ -47,8 +47,10 @@ bool WFAnalyzer::Begin(map<string, PluginBase*>& plugins, CfgManager& opts, uint
                 if(wfTemplate)
                 {
                     templates_[channel] = (TH1F*) wfTemplate->Clone();
+						  //std::cout << templates_[channel]->GetEntries() << std::endl;
                     templates_[channel]->SetDirectory(0);
                     WFs_[channel]->SetTemplate(templates_[channel]);
+                    //std::cout << " ... SetTemplate for channel " << channel << std::endl;
                 }
                 else
                 {
@@ -184,7 +186,7 @@ bool WFAnalyzer::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins, 
                                                                   opts.GetOpt<int>(channel+".signalWin", 2)/2,
                                                                   opts.GetOpt<int>(channel+".signalWin", 2)/2,
                                                                   max_function);
-				//if (interpolAmpMax.ampl < 0.1 && channel == "C2")  std::cout << "... ev " << event.evtNumber << "\t ch " << channel << "\t Amax " << interpolAmpMax.ampl << std::endl;  
+				//if(channel == "C2") std::cout << "  MAX amp " << interpolAmpMax.ampl << " at " << interpolAmpMax.time << std::endl;
         }
         digiTree_.pedestal[outCh] = baselineInfo.baseline;
 	WFClassLiTEDTU* islitedtu = dynamic_cast<WFClassLiTEDTU*>(WFs_[channel]);
@@ -227,19 +229,19 @@ bool WFAnalyzer::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins, 
         //---template fit (only specified channels)
         if(opts.OptExist(channel+".templateFit.file"))
         {
-            //std::cout << "--> Channel " << channel << std::endl;
+				//std::cout << " Input to TemplateFit() : " << (opts.OptExist(channel+".templateFit.amplitudeThreshold") ? opts.GetOpt<float>(channel+".templateFit.amplitudeThreshold") : 0 )<< "\t" << opts.GetOpt<float>(channel+".templateFit.fitWin", 0) << "\t" << opts.GetOpt<int>(channel+".templateFit.fitWin", 1) << "\t" << opts.GetOpt<int>(channel+".templateFit.fitWin", 2) << std::endl;
             auto fitResults = WFs_[channel]->TemplateFit(
                 opts.OptExist(channel+".templateFit.amplitudeThreshold") ? opts.GetOpt<float>(channel+".templateFit.amplitudeThreshold") : 0,
                 opts.GetOpt<float>(channel+".templateFit.fitWin", 0),
                 opts.GetOpt<int>(channel+".templateFit.fitWin", 1),
                 opts.GetOpt<int>(channel+".templateFit.fitWin", 2));
-
             digiTree_.fit_ampl[outCh] = fitResults.ampl;
-            //std::cout << fitResults.ampl << std::endl;
             digiTree_.fit_time[outCh] = fitResults.time;
             digiTree_.fit_terr[outCh] = fitResults.error;            
             digiTree_.fit_chi2[outCh] = fitResults.chi2;
             digiTree_.fit_period[outCh] = WFs_[channel]->GetTemplateFitPeriod();
+
+            //if(channel == "C2" || channel == "MCP1" || channel == "MCP2") //std::cout << "--> Channel " << channel <<  " EV " << event.evtNumber << " Fit_ampl  ="<< fitResults.ampl << "\t Chi2 " << fitResults.chi2 << std::endl;
 
             WFFitResultsScintPlusSpike fitResultsScintPlusSpike{-1, -1000, -1, -1000, -1};
             if(opts.OptExist(channel+".templateFit.spikeFile"))

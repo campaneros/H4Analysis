@@ -82,6 +82,7 @@ bool TemplateMaker::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugin
         //---fill template after checking the event selections
         auto selection = opts.OptExist(channel+".templateMaker.eventSelection") ?
             opts.GetOpt<string>(channel+".templateMaker.eventSelection") : string("");
+        //std::cout << " - TemplateMaker.cc : selection " << selection << std::endl;
         if(eventAnalyzer_.EvaluateSelection(selection))
         {
             auto vars = opts.GetOpt<string>(channel+".templateMaker.expression");
