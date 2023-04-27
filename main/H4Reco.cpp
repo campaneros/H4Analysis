@@ -301,19 +301,27 @@ int main(int argc, char* argv[])
                 }
                 HandleException(eptr, plugin);
             }
+
+	    //    cbasile: check if the time-stamps synchronization hold
+            int nDigitizers = (int)(dataLoader.GetTree().nEvtTimes/2); 
+            std::cout << " --> nDigitizers " << nDigitizers << std::endl; 
+            for(int iD=0; iD<nDigitizers; ++iD){
+                if(fabs((long long int)(dataLoader.GetTree().evtTime[2*iD+1] - dataLoader.GetTree().evtTime[0])) > 500.) status = false;   
+                //std::cout << "   digi " << 2*iD+1 << "\t" << (long long int)(dataLoader.GetTree().evtTime[2*iD+1] - dataLoader.GetTree().evtTime[0] )<< std::endl;   
+            }
         
 	    //---Fill the main tree with info variables and increase event counter
             mainTree.time_stamps.clear();
             for(int iT=0; iT<dataLoader.GetTree().nEvtTimes; ++iT)
                 mainTree.time_stamps.push_back(dataLoader.GetTree().evtTime[iT]);
-	    mainTree.evt_flag = status;
-	    mainTree.run = dataLoader.GetTree().runNumber;
-	    mainTree.spill = dataLoader.GetTree().spillNumber;
-	    mainTree.event = dataLoader.GetTree().evtNumber;
-	    mainTree.Fill();
-	    ++nEvents;
+            mainTree.evt_flag = status;
+            mainTree.run = dataLoader.GetTree().runNumber;
+            mainTree.spill = dataLoader.GetTree().spillNumber;
+            mainTree.event = dataLoader.GetTree().evtNumber;
+            mainTree.Fill();
+            ++nEvents;
         }
-	cout << ">>> TOTAL rocessed events: " << nEvents << "\033[0m" << endl;
+    cout << ">>> TOTAL processed events: " << nEvents << "\033[0m" << endl;
 
 	//---end
 	for(auto& plugin : pluginSequence)
