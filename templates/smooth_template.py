@@ -17,11 +17,12 @@ f = ROOT.TFile.Open(f"{args.path}/{args.run}/templ/{fname}.root", "UPDATE")
 tmpl= f.Get(args.hname)
 print(type(tmpl))
 smooth_tmpl = tmpl.ProjectionX()
-smooth_tmpl.Rebin(2)
-for ibin in range(1, tmpl.GetNbinsX(), 2):
-    thisbin = tmpl.ProjectionY("thisbin", ibin, ibin+2)
+n_rebin = 4
+smooth_tmpl.Rebin(n_rebin)
+for ibin in range(1, tmpl.GetNbinsX(), n_rebin):
+    thisbin = tmpl.ProjectionY("thisbin", ibin, ibin+n_rebin)
     thisbin.SetAxisRange(thisbin.GetMean()-1*thisbin.GetRMS(), thisbin.GetMean()+1*thisbin.GetRMS())
-    smooth_tmpl.SetBinContent(int(ibin/2)+1, thisbin.GetMean())
+    smooth_tmpl.SetBinContent(int(ibin/n_rebin)+1, thisbin.GetMean())
     #print (ibin, thisbin.GetMean())
 
 smooth_tmpl.SetDirectory(f)

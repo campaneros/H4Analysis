@@ -7,13 +7,13 @@ import datetime
 import glob
 import argparse
 
-def submit(run, path, inpath, prefix, minamp, maxamp, cx, cy, queue, job_dir):
+def submit(run, path, inpath, prefix, minamp, maxamp, crystal, cx, cy, queue, job_dir):
     jobname = f'{job_dir}/corrected_templates_{prefix}'
     fsh = open (jobname+'.sh', 'w')
     fsh.write ('#!/bin/sh' + '\n\n')
     fsh.write ('cd '+path+' \n')
     fsh.write ('source scripts/setup.sh \n')
-    fsh.write (f'python templates/corrected_template.py --run {run} --prefix {prefix} --minamp {minamp} --maxamp {maxamp} --cx {cx} --cy {cy} --path {inpath}\n\n')
+    fsh.write (f'python templates/corrected_template_{crystal}.py --run {run} --prefix {prefix} --minamp {minamp} --maxamp {maxamp} --cx {cx} --cy {cy} --path {inpath}\n\n')
     fsh.close ()
     #---HTCondor submit file
     fsub = open (f'{jobname}.sub', 'w')
@@ -41,6 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--maxamp' , type = int, default = 3000)
     parser.add_argument('--cx' , type = float, default = 0.)
     parser.add_argument('--cy' , type = float, default = -5.0)
+    parser.add_argument('--crystal' , default = 'C2')
     parser.add_argument('--path' , default = '/eos/home-c/camendol/ECALTB/ECAL_TB_Oct2021/ntuples/ECAL_H4_Oct2021_templates/ntuples_templates_v5/')
     
     args = parser.parse_args ()
@@ -62,4 +63,4 @@ if __name__ == '__main__':
     for prefix in range(1, njobs+1):
         #print(prefix)
         #print(f'{args.path}/{run}/{prefix}*.root')
-        submit(run, local_path, args.path, prefix, args.minamp, args.maxamp, args.cx, args.cy, args.queue, job_dir)
+        submit(run, local_path, args.path, prefix, args.minamp, args.maxamp, args.crystal, args.cx, args.cy, args.queue, job_dir)

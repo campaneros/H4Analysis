@@ -36,44 +36,43 @@ int main (int argc, char *argv[])
     gSystem->Load("lib/libH4Analysis.so");
     gStyle->SetOptStat(0);
 	
-	 cout << "LIBs set-up" << endl;
+    cout << "LIBs set-up" << endl;
 
     if (!save_friend) ROOT::EnableImplicitMT();
     ROOT::RDataFrame df("h4", Form("%s/%i/*.root", path.Data(), run)); //("tree_name", "path")
 
     string selection = "";
     if (iter)
-        selection = Form("trg == PHYS && digi.fit_ampl[C2]>%i && fit_ampl[MCP1]>120 && digi.fit_ampl[C2]<%i", minamp, maxamp);
+        selection = Form("trg == PHYS && digi.fit_ampl[C3]>%i && fit_ampl[MCP1]>120 && digi.fit_ampl[C3]<%i", minamp, maxamp);
     else
-        selection = Form("trg == PHYS && digi_t.amp_max[C2_T]>%i && fit_ampl[MCP1]>120 && digi_t.amp_max[C2_T]<%i", minamp, maxamp);
+        selection = Form("trg == PHYS && evt_flag == 1 && digi_t.amp_max[C3_T]>%i && fit_ampl[MCP1]>200 && digi_t.amp_max[C3_T]<%i", minamp, maxamp);
 
-    cout << Form("Selection: %s", selection) <<endl; 
-	 cout << "Selection: " << selection << endl;
+    cout << "Selection: " << selection << endl;
 
     ROOT::RDF::RNode fn = df;
     
     if (iter)
-        fn = df.Define("dtime", "digi.fit_time[C2]-fit_time[MCP1]+fit_time[CLK]-int((digi.fit_time[C2]-fit_time[MCP1]+fit_time[CLK])/6.238)*6.238")
-            .Define("phase", "digi_t.fit_time[C2_T]-int(digi_t.fit_time[C2_T]/6.238)*6.238")
-            .Define("amp", "digi_t.fit_ampl[C2_T]")
+        fn = df.Define("dtime", "digi.fit_time[C3]-fit_time[MCP1]+fit_time[CLK]-int((digi.fit_time[C3]-fit_time[MCP1]+fit_time[CLK])/6.238)*6.238")
+            .Define("phase", "digi_t.fit_time[C3_T]-int(digi_t.fit_time[C3_T]/6.238)*6.238")
+            .Define("amp", "digi_t.fit_ampl[C3_T]")
             .Define("timeMCP", "fit_time[MCP1]")
             .Define("timeCLK", "fit_time[CLK]")
-            .Define("maxtime", "time_max[C2_T]")
+            .Define("maxtime", "time_max[C3_T]")
             .Define("maxtimeCLK", "time_max[CLK]")
             .Define("maxtimeMCP", "time_max[MCP1]")
             .Define("ampMCP", "amp_max[MCP1]")
-            .Define("gainxtal", "gain[C2_T]");
+            .Define("gainxtal", "gain[C3_T]");
     else
-        fn = df.Define("dtime", "digi_t.time_max[C2_T]-fit_time[MCP1]+fit_time[CLK]-int((digi_t.time_max[C2_T]-fit_time[MCP1]+fit_time[CLK])/6.238)*6.238")
-            .Define("phase", "digi_t.time_max[C2_T]-int(digi_t.time_max[C2_T]/6.238)*6.238")
-            .Define("amp", "digi_t.amp_max[C2_T]")
+        fn = df.Define("dtime", "digi_t.time_max[C3_T]-fit_time[MCP1]+fit_time[CLK]-int((digi_t.time_max[C3_T]-fit_time[MCP1]+fit_time[CLK])/6.238)*6.238")
+            .Define("phase", "digi_t.time_max[C3_T]-int(digi_t.time_max[C3_T]/6.238)*6.238")
+            .Define("amp", "digi_t.amp_max[C3_T]")
             .Define("timeMCP", "fit_time[MCP1]")
             .Define("timeCLK", "fit_time[CLK]")
-            .Define("maxtime", "time_max[C2_T]")
+            .Define("maxtime", "time_max[C3_T]")
             .Define("maxtimeCLK", "time_max[CLK]")
             .Define("maxtimeMCP", "time_max[MCP1]")
             .Define("ampMCP", "amp_max[MCP1]")
-            .Define("gainxtal", "gain[C2_T]");
+            .Define("gainxtal", "gain[C3_T]");
 
 
     fn = fn.Filter(selection, "selection");
@@ -168,11 +167,11 @@ int main (int argc, char *argv[])
     cout << " the directory exists ? " << fs::exists(out_path) << endl;
     if (save_friend){
         ROOT::RDF::RNode corr = df;
-        //corr = corr.Define("dtime", "digi_t.fit_time[C2_T]-fit_time[MCP1]+fit_time[CLK]-int((digi_t.fit_time[C2_T]-fit_time[MCP1]+fit_time[CLK])/6.238)*6.238")
-        //    .Define("phase", "digi_t.fit_time[C2_T]-int(digi_t.fit_time[C2_T]/6.238)*6.238");
+        //corr = corr.Define("dtime", "digi_t.fit_time[C3_T]-fit_time[MCP1]+fit_time[CLK]-int((digi_t.fit_time[C3_T]-fit_time[MCP1]+fit_time[CLK])/6.238)*6.238")
+        //    .Define("phase", "digi_t.fit_time[C3_T]-int(digi_t.fit_time[C3_T]/6.238)*6.238");
 
-        corr = corr.Define("dtime", "digi_t.time_max[C2_T]-fit_time[MCP1]+fit_time[CLK]-int((digi_t.time_max[C2_T]-fit_time[MCP1]+fit_time[CLK])/6.238)*6.238")
-            .Define("phase", "digi_t.time_max[C2_T]-int(digi_t.time_max[C2_T]/6.238)*6.238");
+        corr = corr.Define("dtime", "digi_t.time_max[C3_T]-fit_time[MCP1]+fit_time[CLK]-int((digi_t.time_max[C3_T]-fit_time[MCP1]+fit_time[CLK])/6.238)*6.238")
+            .Define("phase", "digi_t.time_max[C3_T]-int(digi_t.time_max[C3_T]/6.238)*6.238");
         
         corr = corr.DefineSlotEntry("dtime_corr", 
                                     [&mean](unsigned int,  ULong64_t, double dtime, double phase) { 
