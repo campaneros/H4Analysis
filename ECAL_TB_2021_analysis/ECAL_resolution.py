@@ -23,7 +23,6 @@ ROOT.gROOT.SetBatch(True)
 
 
 dict_C2_energy      = {'25' : [15183] , '50' : [15145, 15146], '75' : [15199], '100' : [15153], '125' : [15190], '150' : [15158]}
-
 dict_energy_Chi2max = {'25' : 200,   '50' : 1000,  '75': 2300, '100': 2800, '125': 4000, '150': 4300}
 
 dict_energy_Amin    = {'25' : 100,  '50' : 500,  '75': 1000, '100': 1500, '125': 2000, '150': 2000}
@@ -32,22 +31,22 @@ dict_energy_Amax    = {'25' : 1000, '50' : 2000, '75': 2500, '100': 3000, '125':
 dict_energy_Cx      = {'25' : 2.5,    '50' : 2.5,    '75':  0.,   '100':  0.,  '125':  2., '150': 2.5}
 dict_energy_Cy      = {'25' : -3.,    '50' : -3.,    '75': -4.,   '100': -2.5, '125': -3., '150': -2.5}
 
-dict_energy_Nbins   = {'25' : 800,   '50' : 500,   '75': 400,  '100': 300, '125': 300, '150': 250}
+dict_energy_Nbins   = {'25' : 1000,   '50' : 500,   '75': 400,  '100': 300, '125': 300, '150': 250}
 
-plot_folder = '/eos/user/c/cbasile/www/ECAL_TB2021/Linearity/FitAmpl'
+plot_folder = '/eos/user/c/cbasile/www/ECAL_TB2021/LowPurity/Results/'
 outstr = '_3x3'
 trees_path = '/eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Oct2021/LowPurity/ntuples_fit'
 
 # 3x3 MATRIX around C2
 crystal = 'C2'
-matrix =  'B2,B3,C3,D3,C2,D2,D1,C1,B1'.split(',')
+matrix = 'B2,B3,C3,C2,C1,B1'.split(',') #'B2,B3,C3,D3,C2,D2,D1,C1,B1'.split(',')
 dict_crystals_calibration = {}
 print(f'  MATRIX {matrix}')
 
 c = ROOT.TCanvas("c","c",2000,1000)
 c.Divide(3,2)
 canvas_num=0
-MX3_results = []
+MX_results = []
 energies = sorted([int(item) for item in dict_C2_energy.keys()])
 print(energies)
 energies = [str(item) for item in energies]
@@ -64,18 +63,12 @@ for energy in energies :
 
     myCB = CB.CBfunction(tree)
 
-    myCB.doubleSidedCB = True
+    myCB.doubleSidedCB = False
     myCB.nbins = dict_energy_Nbins[energy] 
-    myCB.xaxis_scale = 0.4
-    myCB.a_initial = 1.5
-    myCB.a_initial = 0.5
-    myCB.n_initial = 5 
-    myCB.n_initial = 15 
+
 
 
     myCB.set_crystal(crystal)
-    myCB.set_ampLimits(dict_energy_Amin[energy], dict_energy_Amax[energy])
-    myCB.set_FitChiThreshold(dict_energy_Chi2max[energy])
     myCB.set_energy(energy)
     myCB.set_position(dict_energy_Cx[energy], dict_energy_Cy[energy], 4)
 
@@ -86,14 +79,20 @@ for energy in energies :
     else : myCB.CBintialization()
 
     myCB.fitToData()
+    myCB.xaxis_scale = 0.5
     myCB.plot()
     tmp_dict = {}
     tmp_dict[energy] = myCB.fitResults()
-    MX3_results.append(tmp_dict)
+    MX_results.append(tmp_dict)
     canvas_num+=1
         
 
 c.Draw()
-c.SaveAs('%s/intercalibration_fits_%s.pdf'%(plot_folder,outstr))
-c.SaveAs('%s/intercalibration_fits_%s.png'%(plot_folder,outstr))
+c.SaveAs('%s/NOintercalib_TemplFits_%s_%s.png'%(plot_folder,outstr,crystal))
+c.SaveAs('%s/NOintercalib_TemplFits_%s_%s.pdf'%(plot_folder,outstr,crystal))
+
+############## SAVE RESULTS ##############
+
+with open("results/%sresults_%s.json"%(crystal,outstr), "w") as fp:
+    json.dump(MX_results,fp) 
 

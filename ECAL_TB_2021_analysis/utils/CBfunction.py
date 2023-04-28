@@ -60,7 +60,7 @@ class CBfunction:
             #draw_function +='fit_ampl[%s]*%.4f'%(cryst,dict_crystals_calibration[cryst])
             #draw_function +='((fit_ampl[%s] > 0) ? fit_ampl[%s] : amp_max[%s])*%.4f'%(cryst,cryst,cryst,dict_crystals_calibration[cryst])
             # SENZA INTERCALIB !
-            draw_function +='((fit_ampl[%s] > 0) ? fit_ampl[%s] : amp_max[%s])*%.4f'%(cryst,cryst,cryst,1.)
+            draw_function +='((fit_ampl[%s] > 0 && fit_ampl[%s] < 5000) ? fit_ampl[%s] : amp_max[%s])*%.4f'%(cryst, cryst,cryst,cryst,1.)
             if enum!=len(matrix)-1 : draw_function+='+'
           #  else : draw_function+=")*%.4f>>ampl_%s_%s"%(dict_crystals_calibration['conversion_factor'],self.crystal,self.energy)
             else : draw_function+=")>>ampl_%s_%s"%(self.crystal,self.energy)
@@ -124,11 +124,11 @@ class CBfunction:
 
         self.roohist = RooDataHist("roohist_fit_%s_%s"%(self.crystal,self.energy),"roohist_fit_%s_%s"%(self.crystal,self.energy),RooArgList(self.x),self.hist)
         self.m = RooRealVar("mean_%s_%s"%(self.crystal,self.energy),"mean_%s_%s"%(self.crystal,self.energy),self.peak_position,max(0.,self.peak_position*(1-self.xaxis_scale)),self.peak_position*(1+self.xaxis_scale))
-        self.s = RooRealVar("sigma_%s_%s"%(self.crystal,self.energy),"sigma_%s_%s"%(self.crystal,self.energy),self.s_initial,0.,50)
-        self.a = RooRealVar("alpha_%s_%s"%(self.crystal,self.energy),"alpha_%s_%s"%(self.crystal,self.energy),self.a_initial,0.001,10)
-        self.a2 = RooRealVar("alpha2_%s_%s"%(self.crystal,self.energy),"alpha2_%s_%s"%(self.crystal,self.energy),self.a2_initial,0.001,5)
-        self.n = RooRealVar("exp_%s_%s"%(self.crystal,self.energy),"exp_%s_%s"%(self.crystal,self.energy),self.n_initial,5.,150)
-        self.n2 = RooRealVar("exp2_%s_%s"%(self.crystal,self.energy),"exp2_%s_%s"%(self.crystal,self.energy),self.n2_initial,10.,500)
+        self.s = RooRealVar("sigma_%s_%s"%(self.crystal,self.energy),"sigma_%s_%s"%(self.crystal,self.energy),self.s_initial,5,200)
+        self.a = RooRealVar("alpha_%s_%s"%(self.crystal,self.energy),"alpha_%s_%s"%(self.crystal,self.energy),self.a_initial,0.1,10)
+        self.a2 = RooRealVar("alpha2_%s_%s"%(self.crystal,self.energy),"alpha2_%s_%s"%(self.crystal,self.energy),self.a2_initial,0.1,2)
+        self.n = RooRealVar("exp_%s_%s"%(self.crystal,self.energy),"exp_%s_%s"%(self.crystal,self.energy),self.n_initial,0.01,150)
+        self.n2 = RooRealVar("exp2_%s_%s"%(self.crystal,self.energy),"exp2_%s_%s"%(self.crystal,self.energy),self.n2_initial,10.,250)
         self.sig = ROOT.My_double_CB("signal_%s_%s"%(self.crystal,self.energy),"signal_%s_%s"%(self.crystal,self.energy),self.x,self.m,self.s,self.a,self.n,self.a2,self.n2)        
         
 
