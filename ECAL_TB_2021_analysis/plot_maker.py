@@ -34,7 +34,8 @@ print(loc)
 parser = argparse.ArgumentParser (description = 'make ECAL plots')
 parser.add_argument('-i', '--input', help = 'JSON file to read in input')
 parser.add_argument('-o', '--output', help = 'folder to save plots', default = '/eos/user/c/cbasile/www/ECAL_TB2021/Linearity/FitAmpl')
-parser.add_argument('--tag', default = 'C2') 
+parser.add_argument('--tag', default = 'C2')
+parser.add_argument('--crystal', default= 'C2 crystal')
 
 args = parser.parse_args ()
 plot_folder = args.output
@@ -155,32 +156,73 @@ c0.SaveAs('%s/ADC_to_GeV_%s.pdf'%(plot_folder,args.tag))
     
 
 c1 = ROOT.TCanvas("C2_resolution", "", 800, 800)
+
+ROOT.gStyle.SetLabelFont(42);
     
 y=array.array('d',unumpy.nominal_values(sigma_over_mean).tolist()[0])
 ey=array.array('d',unumpy.std_devs(sigma_over_mean).tolist()[0])
+
+# resolution fit
+def resol_func(x, S, C):
+    N = 0.51 # fixed noise term (Simone)
+    resol = N*N/(x*x) + S*S/x + C*C
+    return np.sqrt(resol)
+popt, pcov = curve_fit(resol_func, energies_float, y, sigma=ey,absolute_sigma=True)
+perr = np.sqrt(np.diag(pcov))
+print('fit parametes and 1-sigma errors:')
+for i in range(len(popt)):
+    print('\t par[%d] = %.3f +- %.3f'%(i,popt[i],perr[i]))
+
+fit_resol = ROOT.TF1("resol_func", "sqrt(0.51*0.51/(x*x) + [0]*[0]/x + [1]*[1])", 10, 200)
+fit_resol.SetParameter(0, popt[0]); fit_resol.SetParameter(1, popt[1])
+fit_resol.SetLineWidth(3)
+
+
+# make plot
+
 gr = ROOT.TGraphErrors(len(energies_float),array.array('d',energies_float),y,array.array('d',energies_float_unc) ,ey )
-gr.SetMarkerStyle( 20 )
+gr.SetMarkerStyle(20)
 
 gr.SetTitle('')
+gr.GetYaxis().SetTitleSize(0.04)
 gr.GetYaxis().SetLabelSize(0.04)
-gr.GetYaxis().SetRangeUser(0.016, 0.032)
+Ymin = 0.; Ymax = 0.05
+gr.GetYaxis().SetRangeUser(Ymin, Ymax)
+#gr.GetYaxis().SetNdivisions(-510)
+gr.GetYaxis().SetTitleOffset(1.9)
+gr.GetYaxis().SetTitle( '#sigma(E)/E')
+gr.GetXaxis().SetTitleOffset(1.5)
+gr.GetXaxis().SetTitleSize(0.04)
 gr.GetXaxis().SetLabelSize(0.04)
-gr.GetYaxis().SetTitleOffset(1.7)
-gr.GetYaxis().SetTitle( '#sigma(E)/E' )
+gr.GetXaxis().SetRangeUser(0., 300)
 gr.GetXaxis().SetTitle( 'E (GeV)' )
 gr.Draw( 'AP' )
-leg = ROOT.TLegend(0.55,0.65,0.8,0.9)
+fit_resol.Draw('same')
+# legend
+leg = ROOT.TLegend(0.5,0.7,0.8,0.9)
 leg.SetFillStyle(-1)
 leg.SetBorderSize(0)
 leg.SetTextFont(42)
-leg.SetTextSize(0.03)
-leg.AddEntry(gr,'ECAL C2 crystal','P')
+leg.SetTextSize(0.035)
+leg.AddEntry(gr,f'ECAL {args.crystal}','P')
+leg.AddEntry(fit_resol, "#frac{N}{E} #oplus #frac{S}{#sqrt{E}} #oplus C", "l")
 leg.Draw()
-ECALtex.DrawLatex(21,0.0305, "#bf{ECAL} Test Beam 2021")
+# text on plot
+fit_txt = ROOT.TLatex()
+fit_txt.SetTextFont(42)
+fit_txt.SetTextAngle(0)
+fit_txt.SetTextColor(ROOT.kBlack)    
+fit_txt.SetTextSize(0.035)    
+fit_txt.SetTextAlign(12)
+fit_txt.DrawLatex(20, 0.014, "N = 0.51 (fixed)")
+fit_txt.DrawLatex(20, 0.012, 'S = %.4f #pm %.4f'%(popt[0], perr[0]))
+fit_txt.DrawLatex(20, 0.010, 'C = %.4f #pm %.4f'%(popt[1], perr[1]))
+ECALtex.SetTextSize(0.045)
+ECALtex.DrawLatex(20,0.005, "#bf{ECAL} Test Beam 2021")
 
 c1.Draw()  
 ROOT.gStyle.SetLineWidth(2)
-ROOT.gPad.SetMargin(0.13,0.13,0.13, 0.13)
-ROOT.gPad.SetGridx(1); ROOT.gPad.SetGridy(1);
+ROOT.gPad.SetMargin(0.15,0.10,0.15, 0.10)
+ROOT.gPad.SetGridx(1); ROOT.gPad.SetGridy(1)
 c1.SaveAs('%s/EnergyResolution_C2_%s.pdf'%(plot_folder,args.tag))
 c1.SaveAs('%s/EnergyResolution_C2_%s.png'%(plot_folder,args.tag))
