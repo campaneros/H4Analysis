@@ -46,6 +46,7 @@ int main (int argc, char *argv[])
         selection = Form("trg == PHYS && digi.fit_ampl[C3]>%i && fit_ampl[MCP1]>120 && digi.fit_ampl[C3]<%i", minamp, maxamp);
     else
         selection = Form("trg == PHYS && evt_flag == 1 && digi_t.amp_max[C3_T]>%i && fit_ampl[MCP1]>200 && digi_t.amp_max[C3_T]<%i", minamp, maxamp);
+        //selection = Form("trg == PHYS && evt_flag == 1 && digi_t.amp_max[C3_T]>%i && fit_ampl[MCP1]>500 && digi_t.amp_max[C3_T]<%i&&(phase<1.407||phase>1.408)", minamp, maxamp);
 
     cout << "Selection: " << selection << endl;
 
@@ -79,7 +80,8 @@ int main (int argc, char *argv[])
 
     // make phase correction
     auto c = new TCanvas("c", "c", 600, 600);
-    auto dtime_phase = fn.Histo2D({"dtime_phase", ";APD sampling phase (ns); #Deltat_{APD-MCP}", 60, 0, 6.238, 60, 4.6, 6.2}, "phase", "dtime");
+    float ylow = 4.6, yhigh = 6.2;
+    auto dtime_phase = fn.Histo2D({"dtime_phase", ";APD sampling phase (ns); #Deltat_{APD-MCP}", 60, 0, 6.238, 60, ylow, yhigh}, "phase", "dtime");
     dtime_phase->FitSlicesY();
     
 
@@ -95,7 +97,7 @@ int main (int argc, char *argv[])
     mean->SetAxisRange(5,6.2,"Y");
     TF1 * fsine = (TF1* ) new TF1("fsine", "[0]*sin([1]*x+[2])+[3]", 0, 6.238);
     fsine->SetParameters(0.005, 0.9, 0., 3.);
-    fsine->SetParLimits(1, 0.5, 2.);
+    fsine->SetParLimits(1, 0.5, 3.);
     mean->Fit(fsine);
     mean->Draw();
 
@@ -122,7 +124,7 @@ int main (int argc, char *argv[])
 
         vector<tuple< TString, TString, TString, int, double, double, int, double, double > >  tuples2d;
         tuples2d.push_back(make_tuple("dtime_corr_phase","dtime_corr","phase", 25, 0, 6.238, 25, -.6, .6));
-        tuples2d.push_back(make_tuple("dtime_phase","dtime","phase", 25, 0, 6.238, 25, 4.6, 6.2));
+        tuples2d.push_back(make_tuple("dtime_phase","dtime","phase", 25, 0, 6.238, 25, ylow, yhigh));
         tuples2d.push_back(make_tuple("dtime_corr_vs_amplMCP", "dtime_corr", "ampMCP",  100, 0, 3000, 60, -.6, .6)); 
         tuples2d.push_back(make_tuple("dtime_corr_vs_ampl", "dtime_corr", "amp",  100, 0, 3000, 60, -.6, .6)); 
         tuples2d.push_back(make_tuple("dtime_corr_vs_time", "dtime_corr", "time",  100, 20, 100,  60, -.6, .6)); 
