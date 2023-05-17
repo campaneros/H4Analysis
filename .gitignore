@@ -25,6 +25,7 @@ AutoDict_*
 *.o
 *.so
 *.tar
+*.json
 .vscode
 
 # Proxy file 
