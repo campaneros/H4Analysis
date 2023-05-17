@@ -41,7 +41,6 @@ args = parser.parse_args ()
 plot_folder = args.output
 
 with open(args.input, 'r') as openfile:
- 
     # Reading from json file
     results= json.load(openfile)
 
@@ -110,7 +109,7 @@ up_pad.SetMargin(0.15, 0.1,0.0,0.1)
 up_pad.SetGrid()
 up_pad.cd()
 lin_gr = ROOT.TGraphErrors(len(energies_float), np.array(energies_float).astype("float"),np.array(CBmeans).astype("float"),np.array(energies_float_unc).astype("float") ,np.array(CBmeans_err).astype("float"))
-fit_func = ROOT.TF1("lin_func", "[0]*x + [1]", 10, 200)
+fit_func = ROOT.TF1("lin_func", "[0]*x + [1]", 10, 300)
 fit_func.SetParameter(0, popt[0]); fit_func.SetParameter(1, popt[1])
 fit_func.SetLineWidth(3)
 lin_gr.SetMarkerStyle(20)
@@ -122,7 +121,10 @@ lin_gr.GetYaxis().SetLabelSize(0.04);
 lin_gr.Draw('AP')
 fit_func.Draw("same")
 lin_gr.Draw('P')
-ECALtex.DrawLatex(21, 3750, "#bf{ECAL} Test Beam 2021")
+ECALtex.DrawLatex(21, 0.9*lin_gr.GetYaxis().GetXmax(), "#bf{ECAL} Test Beam 2021")
+ECALtex.SetTextSize(0.035)    
+ECALtex.DrawLatex(21, 0.85*lin_gr.GetYaxis().GetXmax(), 'ADCtoGeV = %.4f #pm %.4f'%(popt[0], perr[0]))
+ECALtex.DrawLatex(21, 0.80*lin_gr.GetYaxis().GetXmax(), 'offset = %.4f #pm %.4f'%(popt[1], perr[1]))
 c0.cd()
 ratio_pad = ROOT.TPad("ratio_pad", "",0., 0., 1.,0.30)
 ratio_pad.SetMargin(0.15,0.1,0.25,0.04)
@@ -133,11 +135,11 @@ ratio_pad.Draw()
 print(type(energies_float))
 res_gr= ROOT.TGraphErrors(len(energies_float),np.array(energies_float, dtype= float),unumpy.nominal_values(residuals)*100,np.array(energies_float_unc, dtype= float),unumpy.std_devs(residuals)*100) 
 #res_gr= ROOT.TGraphErrors(len(energies_float),np.array(energies_float, dtype= float),unumpy.nominal_values(pull),np.array(energies_float_unc, dtype= float), np.ones(len(energies_float)))
-zero_level = ROOT.TLine(15,0, 160,0); zero_level.SetLineWidth(3); zero_level.SetLineColor(ROOT.kRed)
+zero_level = ROOT.TLine(lin_gr.GetXaxis().GetXmin(),0, lin_gr.GetXaxis().GetXmax(),0); zero_level.SetLineWidth(3); zero_level.SetLineColor(ROOT.kRed)
 res_gr.SetTitle("")
 res_gr.GetXaxis().SetTitle("Beam energy (GeV)"); res_gr.GetXaxis().SetTitleSize(0.1); res_gr.GetXaxis().SetTitleOffset(1)
 res_gr.GetXaxis().SetLabelSize(0.1)
-res_gr.GetYaxis().SetRangeUser(-1,1)
+res_gr.GetYaxis().SetRangeUser(-5,5)
 res_gr.GetYaxis().SetTitle("(E_{reco}-E_{reco}^{fit})/E_{reco}^{fit}(%)"); res_gr.GetYaxis().CenterTitle(); res_gr.GetYaxis().SetTitleSize(0.1); res_gr.GetYaxis().SetTitleOffset(0.65)
 #res_gr.GetYaxis().SetTitle("Pull")
 res_gr.GetYaxis().SetLabelSize(0.1); res_gr.GetYaxis().SetNdivisions(-504)
@@ -163,8 +165,8 @@ y=array.array('d',unumpy.nominal_values(sigma_over_mean).tolist()[0])
 ey=array.array('d',unumpy.std_devs(sigma_over_mean).tolist()[0])
 
 # resolution fit
-def resol_func(x, S, C):
-    N = 0.51 # fixed noise term (Simone)
+def resol_func(x, N, S, C):
+    #N = 0.51 # fixed noise term (Simone)
     resol = N*N/(x*x) + S*S/x + C*C
     return np.sqrt(resol)
 popt, pcov = curve_fit(resol_func, energies_float, y, sigma=ey,absolute_sigma=True)
@@ -173,8 +175,8 @@ print('fit parametes and 1-sigma errors:')
 for i in range(len(popt)):
     print('\t par[%d] = %.3f +- %.3f'%(i,popt[i],perr[i]))
 
-fit_resol = ROOT.TF1("resol_func", "sqrt(0.51*0.51/(x*x) + [0]*[0]/x + [1]*[1])", 10, 200)
-fit_resol.SetParameter(0, popt[0]); fit_resol.SetParameter(1, popt[1])
+fit_resol = ROOT.TF1("resol_func", "sqrt([0]*[0]/(x*x) + [1]*[1]/x + [2]*[2])", 10, 300)
+fit_resol.SetParameter(0, popt[0]); fit_resol.SetParameter(1, popt[1]); fit_resol.SetParameter(2, popt[2]);
 fit_resol.SetLineWidth(3)
 
 
@@ -214,9 +216,9 @@ fit_txt.SetTextAngle(0)
 fit_txt.SetTextColor(ROOT.kBlack)    
 fit_txt.SetTextSize(0.035)    
 fit_txt.SetTextAlign(12)
-fit_txt.DrawLatex(20, 0.014, "N = 0.51 (fixed)")
-fit_txt.DrawLatex(20, 0.012, 'S = %.4f #pm %.4f'%(popt[0], perr[0]))
-fit_txt.DrawLatex(20, 0.010, 'C = %.4f #pm %.4f'%(popt[1], perr[1]))
+fit_txt.DrawLatex(20, 0.014, 'N = %.4f #pm %.4f'%(popt[0], perr[0]))
+fit_txt.DrawLatex(20, 0.012, 'S = %.4f #pm %.4f'%(popt[1], perr[1]))
+fit_txt.DrawLatex(20, 0.010, 'C = %.4f #pm %.4f'%(popt[2], perr[2]))
 ECALtex.SetTextSize(0.045)
 ECALtex.DrawLatex(20,0.005, "#bf{ECAL} Test Beam 2021")
 
