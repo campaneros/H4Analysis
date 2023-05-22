@@ -29,9 +29,9 @@ ROOT.gROOT.SetBatch(True)
 
 ## set-up variables ##
 # LOW PURITY energy scan #
-dict_C2_energy   = {'25' : [15183], '50' : [15145, 15146], '75' : [15199], '100' : [15153], '125' : [15190], '150' : [15158], '175' : [15208], '200' : [15175]}
+dict_C2_energy   = {'25' : [15183], '50' : [15145, 15146]}#, '75' : [15199], '100' : [15153], '125' : [15190], '150' : [15158], '175' : [15208], '200' : [15175]}
 LP_trees_path = '/eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Oct2021/LowPurity/ntuples_fitVFEs'
-LP_dict_energy_Nbins   = {'25' : 1200,   '50' : 800,   '75': 500,  '100': 400, '125': 250, '150': 250, '175' : 200, '200' : 150}
+LP_dict_energy_Nbins   = {'25' : 1200,   '50' : 500,   '75': 500,  '100': 400, '125': 250, '150': 250, '175' : 200, '200' : 150}
 LP_crystal = 'C2'
 C2matrix_3x3 = 'B1,B2,B3,C3,C2,C1,D1,D3'.split(',') 
 
@@ -39,7 +39,7 @@ C2matrix_3x3 = 'B1,B2,B3,C3,C2,C1,D1,D3'.split(',')
 # HIGH PURITY energy scan #
 dict_C3_energy   = {'100' : [14918], '150' : [14943,14934], '200': [14951], '250': [14820,14821]}
 HP_trees_path = '/eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Oct2021/HighPurity/ntuples_fitVFEs/'
-HP_dict_energy_Nbins   = {'100': 300, '150': 300, '200' :200, '250' : 200}
+HP_dict_energy_Nbins   = {'100': 480, '150': 300, '200' :200, '250' : 200}
 HP_crystal = 'C3'
 C3matrix_3x3 = 'B4,B2,B3,C3,C2,C4,D4,D3'.split(',') 
 
@@ -83,8 +83,8 @@ energies = sorted([int(item) for item in dict_energy.keys()])
 print(energies)
 energies = [str(item) for item in energies]
 
-c = ROOT.TCanvas("c","c",2000,1000)
-c.Divide(4,2)
+c = ROOT.TCanvas("c","c",1000,1000)
+c.Divide(2,2)
 canvas_num=0
 for energy in energies :
     c.cd(canvas_num+1) 
@@ -107,10 +107,11 @@ for energy in energies :
 
     # initial fit-parameters
     if(args.mode == 'LP'):
+        myCB.fitchi_max = 500
         myCB.a2_max = 5
         myCB.n_min = 15; myCB.n_max = 15
         if (E>25):
-            myCB.n_min = 7; myCB.n_max = 7
+            myCB.n_min = 2; myCB.n_max = 2
             myCB.n2_min = 30; myCB.n2_max = 30
         if (E>50): 
             myCB.n_min = 50; myCB.n_max = 200; myCB.n_initial = 100
@@ -120,14 +121,17 @@ for energy in energies :
             myCB.n2_max = 10 
         if(E>150): myCB.gain = 10
     if(args.mode == 'HP'):
-        myCB.n_min = 145; myCB.n_max = 145; myCB.n_initial = 100 
-        myCB.n2_min = 15; myCB.n2_max = 15; myCB.n2_initial = 2 
-        myCB.a2_max = 1; myCB.a2_max = 5; myCB.a2_initial = 1.5
-        myCB.a_max = 0.5; myCB.a_max = 3; myCB.a_initial = 1.3
+        myCB.fitchi_max = 1000
+        myCB.n_min = 130; myCB.n_max = 130; myCB.n_initial = 100 
+        myCB.n2_min = 1; myCB.n2_max = 30; myCB.n2_initial = 15 
+        myCB.a2_max = 0.1; myCB.a2_max = 10; myCB.a2_initial = 1.5
+        myCB.a_min = 0.6; myCB.a_max = 0.6; myCB.a_initial = 1.3
         if (E>100): 
             myCB.n_min = 50; myCB.n_max = 200; myCB.n_initial = 120 
             myCB.n2_min = 10.; myCB.n2_max = 10.; myCB.n2_initial = 0.1 
+            myCB.a_min = 0.1; myCB.a_max = 5; myCB.a_initial = 1.3
         if (E>150): 
+            myCB.fitchi_max = 3000
             myCB.n_min = 50; myCB.n_max = 50; myCB.n_initial = 50 
             myCB.n2_min = 20.; myCB.n2_max = 20.; myCB.n2_initial = 0.1  
             myCB.gain = 10

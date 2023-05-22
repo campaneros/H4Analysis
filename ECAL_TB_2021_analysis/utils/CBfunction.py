@@ -60,7 +60,7 @@ class CBfunction:
         #self.selection = "fit_ampl[MCP1]>120 && fabs(X-(%.2f))<%.2f && fabs(Y-(%.2f))<%.2f"%(self.xcenter,self.window,self.ycenter,self.window)
         #self.selection = f'trg==PHYS && fit_chi2[{self.crystal}] < {self.fitchi_max} && fit_ampl[MCP1]>200&& fabs(h1X.clusters.X_- {self.xcenter}) < {self.window} && fabs(h1Y.clusters.Y_- {self.ycenter})  < {self.window} && fabs(h1X.clusters.X_ - h2X.clusters.X_ - 1) < 1 && fabs(h1Y.clusters.Y_ - h2Y.clusters.Y_ + 1) < 1'
         #self.selection = f'trg==PHYS && evt_flag && fit_ampl[MCP1]>200&& fabs(X - {self.xcenter}) < {self.window} && fabs(Y- {self.ycenter}) < {self.window}'
-        self.selection = f'trg==PHYS &&  fit_ampl[MCP1]>200 && (amp_max[{self.crystal}]/(amp_max[A1]+amp_max[A2]+amp_max[A3]+amp_max[A4]+amp_max[A5]+amp_max[B1]+amp_max[B2]+amp_max[B3]+amp_max[B4]+amp_max[B5]+amp_max[C1]+amp_max[C2]+amp_max[C3]+amp_max[C4]+amp_max[C5]+amp_max[D1]+amp_max[D2]+amp_max[D3]+amp_max[D4]+amp_max[D5]+amp_max[E1]+amp_max[E2]+amp_max[E3]+amp_max[E4]+amp_max[E5]))>{self.window} && gain[{self.crystal}] =={self.gain}' 
+        self.selection = f'trg==PHYS &&  fit_ampl[MCP1]>200 && (amp_max[{self.crystal}]/(amp_max[A1]+amp_max[A2]+amp_max[A3]+amp_max[A4]+amp_max[A5]+amp_max[B1]+amp_max[B2]+amp_max[B3]+amp_max[B4]+amp_max[B5]+amp_max[C1]+amp_max[C2]+amp_max[C3]+amp_max[C4]+amp_max[C5]+amp_max[D1]+amp_max[D2]+amp_max[D3]+amp_max[D4]+amp_max[D5]+amp_max[E1]+amp_max[E2]+amp_max[E3]+amp_max[E4]+amp_max[E5]))>{self.window} && gain[{self.crystal}] =={self.gain} && fit_chi2[{self.crystal}] < {self.fitchi_max}' 
         print(f' --> selection : {self.selection}')
 
     def prepare_sumhistogram(self,dict_crystals_calibration,matrix):
