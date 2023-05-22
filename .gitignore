@@ -27,6 +27,7 @@ AutoDict_*
 *.tar
 *.json
 .vscode
+cbasile.cc
 
 # Proxy file 
 X509_USER_PROXY
