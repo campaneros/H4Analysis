@@ -159,7 +159,7 @@ for i in range(dimension*dimension):
 		bcp_number = 0
 	else:
 		bcp_number = 1 
-	command = "sed -i 's/##digiboard{0}{1}##/{2}/g; s/##digiChannel{0}{1}##/{3}/g' {4}".format(letter,number,bcp_number,curr_index,out_file)	
+	command = "sed -i 's/##digiGroup{0}{1}##/{2}/g; s/##digiChannel{0}{1}##/{3}/g' {4}".format(letter,number,bcp_number,curr_index,out_file)	
 	os.system(command)
 	if curr_index>=0:
 		#print("EUREKA")
