@@ -153,13 +153,13 @@ for i in range(dimension*dimension):
 		print("REMOVE CHANNEL NOT EXISTING IN CFG FILE, THEY HAVE NEGATIVE NUMBERS")
 		curr_index = -1	
 	if curr_index == -1:
-		bcp_number = -1
+		bcp_crate = -1
 		flag[i% dimension]=0
 	elif  curr_index<150:
-		bcp_number = 0
+		bcp_crate = 30
 	else:
-		bcp_number = 1 
-	command = "sed -i 's/##digiGroup{0}{1}##/{2}/g; s/##digiChannel{0}{1}##/{3}/g' {4}".format(letter,number,bcp_number,curr_index,out_file)	
+		bcp_crate = 31 
+	command = "sed -i 's/##digiGroup{0}{1}##/{2}/g; s/##digiChannel{0}{1}##/{3}/g' {4}".format(letter,number,bcp_crate,curr_index,out_file)	
 	os.system(command)
 	if curr_index>=0:
 		#print("EUREKA")
