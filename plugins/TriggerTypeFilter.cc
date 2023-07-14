@@ -43,13 +43,23 @@ bool TriggerTypeFilter::Begin(map<string, PluginBase*>& plugins, CfgManager& opt
 bool TriggerTypeFilter::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins, CfgManager& opts)
 {        
     //---check trigger type
-    
+   	
+   std::cout<<"eureka first"<<endl;
+   std::cout<<" trigger words "<<std::find(event.triggerWordsBoard, event.triggerWordsBoard+event.nTriggerWords,
+                         triggerBoard_)<<endl;
+   //std::cout<<" trigger words +events "<<event.triggerWordsBoard+event.nTriggerWords<<"\n";
+   //std::cout<<" trigger boards "<<event.triggerBoard_<<"\n";
+
     auto pos = std::find(event.triggerWordsBoard, event.triggerWordsBoard+event.nTriggerWords,
                          triggerBoard_);
-    if(pos == event.triggerWordsBoard+event.nTriggerWords)
+    std::cout<<"after pos"<<endl;
+    if(false) {
+    //if(pos == event.triggerWordsBoard+event.nTriggerWords) {
         Log("Trigger board not found", WARN);
+	    std::cout<<"eureka"<<endl;}
     else
     {
+    	std::cout<<"inside else"<<endl;
         for(auto const& [mask, name] : maskToName_)
         {
             //---A bit set in trigger word means that the veto was set for that particular trigger

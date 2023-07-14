@@ -98,6 +98,7 @@ bool DigitizerReco::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugin
 //    }
 //
     
+    std::cout << "before loop channels" << std::endl;
     for(auto& channel : channelsNames_)
     {
         //---reset and read new WFs_
@@ -109,11 +110,13 @@ bool DigitizerReco::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugin
         auto offset = event.digiMap.at(make_tuple(digiBd, digiGr, digiCh));
         auto max_sample = offset+std::min(nSamples_[channel], event.digiNSamplesMap[make_tuple(digiBd, digiGr, digiCh)]); 
         auto iSample = offset;
+//	std::cout << "before loop on samples" << channel << std::endl;
         while(iSample < max_sample && event.digiBoard[iSample] != -1)
         {
             //Set the start index cell
             if (iSample==offset)
                 WFs_[channel]->SetStartIndexCell(event.digiStartIndexCell[iSample]);
+		//std::cout << "inside loop samples" << channel << std::endl;
 
             //---H4DAQ bug: sometimes ADC value is out of bound.
             //---skip everything if one channel is bad
@@ -121,14 +124,17 @@ bool DigitizerReco::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugin
             {
                 evtStatus = false;
                 WFs_[channel]->AddSample(4095);
+	//	std::cout << "inside loop samples" << channel << std::endl;
             }
             else if (channel == "CLK")
             {
                 WFs_[channel]->AddSample(event.digiSampleValue[iSample]);
+	//	std::cout << "inside loop samples" << channel << std::endl;
             }
             else
             {
                 WFs_[channel]->AddSample(event.digiSampleValue[iSample], event.digiSampleGain[iSample]);
+//		std::cout << "inside loop samples" << channel << std::endl;
             }
             iSample++;
         }

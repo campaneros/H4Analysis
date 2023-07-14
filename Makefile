@@ -39,10 +39,10 @@ ROOTCFLAGS    = $(shell root-config --cflags)
 ROOTGLIBS     = $(shell root-config --glibs) -lMinuit -lTreePlayer -lMathMore -lGenVector
 
 CXX  =  g++
-CXXFLAGS  = -Wall -Wno-sign-compare -Wno-overloaded-virtual -O2 -fPIC -I$(DIR) $(ROOTCFLAGS)
+CXXFLAGS  = -Wall -Wno-sign-compare -Wno-overloaded-virtual -O2 -g -fPIC -I$(DIR) $(ROOTCFLAGS)
 
 CPP  =  g++
-CPPFLAGS  = -Wall -Wno-sign-compare -Wno-overloaded-virtual -I$(DIR) $(ROOTCFLAGS)
+CPPFLAGS  = -Wall -Wno-sign-compare -Wno-overloaded-virtual -g -I$(DIR) $(ROOTCFLAGS)
 
 ifeq ($(parallel), 1)
 CXXFLAGS += -DPARALLEL -fopenmp
