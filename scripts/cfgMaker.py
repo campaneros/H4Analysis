@@ -4,11 +4,13 @@ import os
 
 parser = optparse.OptionParser()
 
-parser.add_option('-d', dest = 'dim',
+parser.add_option('-d', dest = 'dim',  default=5,
                       help = 'specify the dimension of the matrix')
-parser.add_option('-f', dest = 'inputfile', default = "cfg/ECAL_H4_July2023/ECAL_H4_Phase2_5x5.cfg",
+parser.add_option('-f', dest = 'cfgfile', default = "cfg/ECAL_H4_July2023/ECAL_H4_Phase2_5x5.cfg",
                       help = 'input cfg file')
-parser.add_option('-c', dest = 'channel', default = 70,
+parser.add_option('-i', dest = 'inputfile', default ="channel.txt",
+			help = 'input file with channel')
+parser.add_option('-c', dest = 'channel',
                       help = 'central channel')
 parser.add_option('--BCP', dest = 'BCP', default=1,
 		  	help = 'BCP number')
@@ -95,6 +97,7 @@ eta_bcp = [ ###### BCP 0
 #        65, 65, 65, 65, 65, 90, 90, 90, 90, 90, 89, 89, 89, 89, 89,
 #        88, 88, 88, 88, 88, 87, 87, 87, 87, 87, 86, 86, 86, 86, 86
 #]
+combined_phi_eta = zip(phi_bcp,eta_bcp)
 
 if int(opt.BCP) == 1:
 	bcp_num = 0
@@ -104,17 +107,32 @@ else:
 	print("bad bcp number inserted")
 	exit(1)
 
-central_channel = int(opt.channel)+bcp_num*150
+if opt.channel:
+	central_channel = int(opt.channel)+bcp_num*150
+else:
+	with open(opt.inputfile, 'r') as file:
+		line = file.readline().strip()
+		ieta, iphi = line.split(',')
+		ieta = int(ieta.split(':')[1])
+		iphi = int(iphi.split(':')[1])
+	try:
+		print(iphi,ieta)
+		pair = (iphi,ieta)
+		central_channel = combined_phi_eta.index(pair) 
+		print(central_channel)
+	except:
+		print("CENTRAL CHANNEL NOT EXISTENT")
+        	exit(1)
 matrix = (int(opt.dim)-1)/2
 dimension = int(opt.dim)
-input_file=opt.inputfile
+cfg_file=opt.cfgfile
 
 out_file = "test.txt"
-os.system("cp "+input_file+" "+out_file)
+os.system("cp "+cfg_file+" "+out_file)
 combined_phi_eta = zip(phi_bcp,eta_bcp)
 
 phi_central,eta_central = combined_phi_eta[central_channel]
-print(combined_phi_eta[int(opt.channel)], phi_central,eta_central)
+#print(combined_phi_eta[int(opt.channel)], phi_central,eta_central)
 
 if (eta_central<0) or (phi_central<0):
 	print("ERROR CENTRAL CHANNEL NOT ACTIVE")
