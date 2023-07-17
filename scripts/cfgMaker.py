@@ -127,7 +127,7 @@ matrix = (int(opt.dim)-1)/2
 dimension = int(opt.dim)
 cfg_file=opt.cfgfile
 
-out_file = "test.txt"
+out_file = opt.ouputfile
 os.system("cp "+cfg_file+" "+out_file)
 #combined_phi_eta = zip(phi_bcp,eta_bcp)
 
