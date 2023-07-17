@@ -129,7 +129,7 @@ cfg_file=opt.cfgfile
 
 out_file = "test.txt"
 os.system("cp "+cfg_file+" "+out_file)
-combined_phi_eta = zip(phi_bcp,eta_bcp)
+#combined_phi_eta = zip(phi_bcp,eta_bcp)
 
 print(central_channel)
 phi_central,eta_central = combined_phi_eta[central_channel]
@@ -162,8 +162,8 @@ elif dimension == 3:
 for i in range(dimension*dimension):
 	letter = letters[i // dimension]
 	number = (i% dimension)+1				
-	curr_eta = first_eta + i% dimension		
-	curr_phi = first_phi - (i // dimension)
+	curr_eta = int(first_eta + i% dimension)		
+	curr_phi = int(first_phi - (i // dimension))
 	print(curr_eta,curr_phi)
 	curr_pair = (curr_phi,curr_eta)
 	try:
@@ -178,6 +178,7 @@ for i in range(dimension*dimension):
 		bcp_crate = 30
 	else:
 		bcp_crate = 31 
+		curr_index = curr_index-150
 	command = "sed -i 's/##digiGroup{0}{1}##/{2}/g; s/##digiChannel{0}{1}##/{3}/g' {4}".format(letter,number,bcp_crate,curr_index,out_file)	
 	os.system(command)
 	if curr_index>=0:
@@ -195,6 +196,11 @@ for i in range(dimension*dimension):
 				command = "sed -i 's/#end{0}#/\\\\/g' {1}".format(letter,out_file)
 			else:
 				command = "sed -i 's/#end{0}#/ /g' {1}".format(letter,out_file)
+		else:
+			command = "sed -i 's/#end{0}#/\\\\/g' {1}".format(letter,out_file)
 		os.system(command)
-		for x in flag:
-			x=1
+		print(letter, flag)
+		for i,x in enumerate(flag):
+			print(letter)
+			flag[i]=1
+		print(flag)
