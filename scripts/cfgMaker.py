@@ -116,10 +116,10 @@ else:
 		ieta = int(ieta.split(':')[1])
 		iphi = int(iphi.split(':')[1])
 	try:
-		print(iphi,ieta)
+		#print(iphi,ieta)
 		pair = (iphi,ieta)
 		central_channel = combined_phi_eta.index(pair) 
-		print(central_channel)
+		#print(central_channel)
 	except:
 		print("CENTRAL CHANNEL NOT EXISTENT")
 		exit(1)
@@ -164,12 +164,12 @@ for i in range(dimension*dimension):
 	number = (i% dimension)+1				
 	curr_eta = int(first_eta + i% dimension)		
 	curr_phi = int(first_phi - (i // dimension))
-	print(curr_eta,curr_phi)
+	#print(curr_eta,curr_phi)
 	curr_pair = (curr_phi,curr_eta)
 	try:
 		curr_index = combined_phi_eta.index(curr_pair)
 	except:
-		print("REMOVE CHANNEL NOT EXISTING IN CFG FILE, THEY HAVE NEGATIVE NUMBERS")
+		#print("REMOVE CHANNEL NOT EXISTING IN CFG FILE, THEY HAVE NEGATIVE NUMBERS")
 		curr_index = -1	
 	if curr_index == -1:
 		bcp_crate = -1
@@ -199,8 +199,8 @@ for i in range(dimension*dimension):
 		else:
 			command = "sed -i 's/#end{0}#/\\\\/g' {1}".format(letter,out_file)
 		os.system(command)
-		print(letter, flag)
+		#print(letter, flag)
 		for i,x in enumerate(flag):
-			print(letter)
+			#print(letter)
 			flag[i]=1
-		print(flag)
+		#print(flag)
