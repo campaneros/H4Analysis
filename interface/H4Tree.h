@@ -62,6 +62,7 @@ typedef std::unordered_map<const bgc_key_t, int, key_hash, key_equal> bgc_map_t;
     DATA(unsigned int,  nDigiSamples)           \
     DATA(unsigned int,  nTriggerWords)       
 
+
 #define DATA_VECT_TABLE                                     \
     DATA(unsigned int, evtTimeBoard, nEvtTimes)             \
     DATA(uint64,       evtTime, nEvtTimes)                  \
@@ -75,12 +76,18 @@ typedef std::unordered_map<const bgc_key_t, int, key_hash, key_equal> bgc_map_t;
     DATA(unsigned int, patternChannel, nPatterns)           \
     DATA(unsigned int, triggerWords, nTriggerWords)         \
     DATA(unsigned int, triggerWordsBoard, nTriggerWords)    \
-    DATA(int,          digiBoard, nDigiSamples)             \
-    DATA(unsigned int, digiGroup, nDigiSamples)             \
-    DATA(unsigned int, digiChannel, nDigiSamples)           \
-    DATA(unsigned int, digiStartIndexCell, nDigiSamples)    \
-    DATA(float,        digiSampleValue, nDigiSamples)       \
-    DATA(float,        digiSampleGain, nDigiSamples)       
+    DATA(unsigned int, digiStartIndexCell, nDigiSamples*2)    \
+    DATA(int,          digiBoard, nDigiSamples*2)             \
+    DATA(unsigned int, digiGroup, nDigiSamples*2)             \
+    DATA(unsigned int, digiChannel, nDigiSamples*2)           \
+    DATA(float,        digiSampleValue, nDigiSamples*2)       \
+    DATA(float,        digiSampleGain, nDigiSamples*2)        \
+    DATA(int,          digiSampleIsValid , nDigiSamples*2)    \
+    DATA(int,          digiSampleHasBC0, nDigiSamples*2)      \
+    DATA(unsigned int, digiFrequency, nDigiSamples*2)         \
+    DATA(unsigned int, digiSampleIndex, nDigiSamples*2)       \
+    DATA(float,        digiSampleMode, nDigiSamples*2)
+
 
 #include "DynamicTTree/interface/DynamicTTreeInterface.h"
 

@@ -45,4 +45,10 @@ H4Tree::~H4Tree()
     delete[] digiChannel;
     delete[] digiSampleValue;
     delete[] digiSampleGain;
+    delete[] digiSampleIsValid;
+    delete[] digiSampleHasBC0;
+    delete[] digiSampleMode;
+    delete[] digiFrequency;
+    delete[] digiSampleIndex;
 }
+
