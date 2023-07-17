@@ -56,7 +56,8 @@ bool TriggerTypeFilter::ProcessEvent(H4Tree& event, map<string, PluginBase*>& pl
     if(false) {
     //if(pos == event.triggerWordsBoard+event.nTriggerWords) {
         Log("Trigger board not found", WARN);
-	 //   std::cout<<"eureka"<<endl;}
+	 //   std::cout<<"eureka"<<endl;
+	 }
     else
     {
     	//std::cout<<"inside else"<<endl;
