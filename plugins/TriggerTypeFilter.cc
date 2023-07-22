@@ -46,7 +46,7 @@ bool TriggerTypeFilter::ProcessEvent(H4Tree& event, map<string, PluginBase*>& pl
    	
   // std::cout<<"eureka first"<<endl;
   //std::cout<<" trigger words "<<std::find(event.triggerWordsBoard, event.triggerWordsBoard+event.nTriggerWords,
-                         triggerBoard_)<<endl;
+  //                       triggerBoard_)<<endl;
    //std::cout<<" trigger words +events "<<event.triggerWordsBoard+event.nTriggerWords<<"\n";
    //std::cout<<" trigger boards "<<event.triggerBoard_<<"\n";
 
