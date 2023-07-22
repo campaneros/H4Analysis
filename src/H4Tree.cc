@@ -13,6 +13,7 @@ void H4Tree::Init()
             digiGroup[iSample] != currentDigiGroup ||
             digiBoard[iSample] != currentDigiBoard))
         {
+	    //cout<<" il canale signoraaaa "<< digiChannel[iSample] <<endl;
             currentDigiChannel = digiChannel[iSample];
             currentDigiGroup = digiGroup[iSample];
             currentDigiBoard = digiBoard[iSample];            

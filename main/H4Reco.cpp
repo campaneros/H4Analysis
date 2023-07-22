@@ -292,26 +292,28 @@ int main(int argc, char* argv[])
                 try
                 {
                     //---fake call to base class for debug porpouses
-	    //	    std::cout<<"inside pluginSequence"<<endl;
+	    	    //std::cout<<"inside pluginSequence"<<endl;
                     plugin->PluginBase::ProcessEvent(dataLoader.GetTree(), pluginMap, opts);
                     //---real call + check for filters
                     if(status){
-	    //	    	std::cout<<"inside pluginSequenc:status "<<plugin<<endl;
+	    	    	//std::cout<<"inside pluginSequenc:status "<<plugin<<endl;
                         status &= plugin->ProcessEvent(dataLoader.GetTree(), pluginMap, opts);}
-	    //	    	std::cout<<"inside pluginSequenc:afterstatus"<<endl;
+	    	    	//std::cout<<"inside pluginSequenc:afterstatus"<<endl;
                 }
                 catch(...)
                 {
-	    //	    std::cout<<"inside pluginSequenc:catch"<<endl;
+	   	    //std::cout<<"inside pluginSequenc:catch"<<endl;
+		    std::cout<<plugin->ProcessEvent(dataLoader.GetTree(), pluginMap, opts)<<endl;
                     eptr = std::current_exception();
                 }
-	    //	    std::cout<<"inside pluginSequenc:handle"<<endl;
+	    	    //std::cout<<"inside pluginSequenc:handle"<<endl;
                 HandleException(eptr, plugin);
             }
 
+            //std::cout << " --> nDigitizers " << std::endl;
 	    //    cbasile: check if the time-stamps synchronization hold
             int nDigitizers = (int)(dataLoader.GetTree().nEvtTimes/2); 
-           // std::cout << " --> nDigitizers " << nDigitizers << std::endl; 
+            //std::cout << " --> nDigitizers " << nDigitizers << std::endl; 
             for(int iD=0; iD<nDigitizers; ++iD){
                 if(fabs((long long int)(dataLoader.GetTree().evtTime[2*iD+1] - dataLoader.GetTree().evtTime[0])) > 500.) status = false;   
                 //std::cout << "   digi " << 2*iD+1 << "\t" << (long long int)(dataLoader.GetTree().evtTime[2*iD+1] - dataLoader.GetTree().evtTime[0] )<< std::endl;   

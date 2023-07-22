@@ -178,7 +178,7 @@ for i in range(dimension*dimension):
 		bcp_crate = 30
 	else:
 		bcp_crate = 31 
-		curr_index = curr_index-150
+		curr_index = (curr_index-150)
 	command = "sed -i 's/##digiGroup{0}{1}##/{2}/g; s/##digiChannel{0}{1}##/{3}/g' {4}".format(letter,number,bcp_crate,curr_index,out_file)	
 	os.system(command)
 	if curr_index>=0:
